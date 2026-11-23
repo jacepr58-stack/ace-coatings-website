@@ -1017,7 +1017,7 @@ $('#form').addEventListener('submit',e=>{e.preventDefault();
       const fm=$('#form');fm.style.minHeight=Math.max(fm.offsetHeight,300)+'px';
       qs.forEach(q=>q.hidden=true);$('#formNav').hidden=true;$('.prog').hidden=true;$('#err').textContent='';$('#doneT').textContent=`Thanks, ${lead.name.split(' ')[0]}! We'll reach out about your ${lead.service.toLowerCase()} soon.`;
       rally(()=>{const d=$('#done');d.hidden=false;d.classList.add('pop')});
-      try{window.gtag&&gtag('event','generate_lead');window.fbq&&fbq('track','Lead')}catch(e){}
+      try{window.gtag&&(gtag('event','generate_lead'),gtag('event','conversion',{send_to:'AW-730409131/V7sBCLvul_IYEKvRpNwC',value:1,currency:'USD'}));window.fbq&&fbq('track','Lead')}catch(e){}
     }).catch(()=>{$('#err').textContent="That didn't go through. Please call or text us at 385-269-0060.";btn.disabled=false;btn.textContent='Get my free estimate'});
     return}
   stepI++;show();const f=qs[stepI].querySelector('input');f&&f.focus({preventScroll:true})});

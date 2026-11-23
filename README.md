@@ -44,7 +44,7 @@ Fields sent: `name`, `first_name`, `last_name`, `phone`, `service`, `location`, 
 ## Going live on acecoatingsutah.com (when approved)
 
 - Add the custom domain in the Worker's Settings > Domains & Routes, then update DNS at GoDaddy as Cloudflare instructs. Keep the existing MX/email records so info@ email keeps working.
-- Tracking turns itself on once the site is served from acecoatingsutah.com. In Google Ads, import the GA4 `generate_lead` event as a conversion.
+- Tracking turns itself on once the site is served from acecoatingsutah.com. A sent estimate form fires GA4 `generate_lead`, the Google Ads "Lead Form" conversion, and Meta `Lead`.
 - Submit `https://acecoatingsutah.com/sitemap.xml` in Google Search Console.
 
 ## Copy rule

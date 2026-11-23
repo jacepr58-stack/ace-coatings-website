@@ -1,6 +1,8 @@
 /* Analytics and ad tags. They only load on the real domain, so the test site
    (*.workers.dev) and local previews don't add fake visits or leads to reports.
-   GA4: G-58J88R0TGH, G-YDQPMX7RN4 · Google Ads: AW-730409131 · Meta pixel: 1021883557467247 */
+   GA4: G-58J88R0TGH, G-YDQPMX7RN4 · Google Ads: AW-730409131 · Meta pixel: 1021883557467247
+   The estimate form (public/index.html) also fires the Google Ads "Lead Form" conversion:
+   send_to AW-730409131/V7sBCLvul_IYEKvRpNwC. */
 (function () {
   var host = location.hostname;
   if (host !== 'acecoatingsutah.com' && host !== 'www.acecoatingsutah.com') return;
