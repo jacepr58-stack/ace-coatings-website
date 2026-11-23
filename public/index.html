@@ -12,7 +12,8 @@
 <meta property="og:image" content="https://acecoatingsutah.com/img/ig-1-full-build-navy.jpg">
 <meta property="og:type" content="website">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"HomeAndConstructionBusiness","name":"Ace Coatings","url":"https://acecoatingsutah.com/","telephone":"+1-385-269-0060","email":"info@acecoatingsutah.com","address":{"@type":"PostalAddress","addressLocality":"Spanish Fork","addressRegion":"UT","addressCountry":"US"},"areaServed":"Utah","openingHours":["Mo-Fr 09:00-18:00","Sa 09:00-16:00"],"sameAs":["https://www.instagram.com/acecoatings/"]}</script>
-<!-- Tracking (GA4, Google Ads, Meta pixel) gets added at launch, so test traffic doesn't pollute reports. -->
+<!-- GA4, Google Ads and Meta pixel: loads only on acecoatingsutah.com, so test traffic doesn't pollute reports. -->
+<script src="/js/track.js" async></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&family=JetBrains+Mono:wght@500;700&display=swap">
@@ -642,10 +643,10 @@ footer{background:#0B1729;color:#A9B8CE;padding-block:48px 110px;font-size:.92re
     <div class="foot">
       <div><a class="brand" href="#top"><img src="/img/logo-icon-white.png" alt="">ACE COATINGS<small>UTAH</small></a><p style="margin-top:14px;max-width:34ch">Court construction, resurfacing, and coating for pickleball, tennis, and basketball across Utah.</p></div>
       <div><h4>Services</h4><ul><li><a href="#services">New courts</a></li><li><a href="#services">Resurfacing</a></li><li><a href="#services">Coating</a></li><li><a href="#services">Signature Courts</a></li></ul></div>
-      <div><h4>Company</h4><ul><li><a href="#work">Our work</a></li><li><a href="#reviews">Reviews</a></li><li><a href="https://www.instagram.com/acecoatings/" rel="noopener">Instagram</a></li></ul></div>
-      <div><h4>Contact</h4><ul><li>385-269-0060</li><li>info@acecoatingsutah.com</li><li>Spanish Fork, Utah</li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#work">Our work</a></li><li><a href="#reviews">Reviews</a></li><li><a href="/locations/">Areas we serve</a></li><li><a href="/blog/">Blog</a></li><li><a href="https://www.instagram.com/acecoatings/" rel="noopener">Instagram</a></li></ul></div>
+      <div><h4>Contact</h4><ul><li><a href="tel:+13852690060">385-269-0060</a></li><li><a href="mailto:info@acecoatingsutah.com">info@acecoatingsutah.com</a></li><li>Spanish Fork, Utah</li></ul></div>
     </div>
-    <div class="copy">© 2026 Ace Coatings. All rights reserved.</div>
+    <div class="copy">© 2026 Ace Coatings. All rights reserved. · <a href="/privacy" style="text-decoration:none">Privacy policy</a></div>
   </div>
 </footer>
 <div class="mcta"><a class="btn btn-ghost" href="#design">Design it</a><a class="btn btn-blue" href="#estimate">Free estimate</a></div>
@@ -1022,6 +1023,8 @@ $('#form').addEventListener('submit',e=>{e.preventDefault();
   stepI++;show();const f=qs[stepI].querySelector('input');f&&f.focus({preventScroll:true})});
 $$('input[name=svc]').forEach(r=>r.onchange=()=>{setTimeout(()=>{if(stepI===0){stepI=1;show()}},250)});
 show();
+// City pages link here with ?city=Lehi so the form starts with their city filled in.
+try{const c=new URLSearchParams(location.search).get('city');if(c&&!$('#city').value)$('#city').value=c.slice(0,60)}catch(e){}
 })();
 </script>
 
