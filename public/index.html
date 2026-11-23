@@ -122,10 +122,15 @@ section{scroll-margin-top:76px}
 
 /* ---------- pour band ---------- */
 .pour{position:relative;background:var(--navy);color:#fff;overflow:hidden;isolation:isolate}
-.pour .flood{position:absolute;inset:0;background:var(--paint,#387FE5);z-index:-1;clip-path:circle(150% at 88% 0)}
-.pour .flood::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 88% 0,rgba(255,255,255,.18),transparent 60%)}
-.pour.armed .flood{clip-path:circle(0% at 88% 0)}
-.pour.go .flood{clip-path:circle(150% at 88% 0);transition:clip-path 1.6s cubic-bezier(.3,.1,.2,1) .75s}
+.pour .flood{position:absolute;inset:0;z-index:-1;pointer-events:none}
+.pour .flood::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 88% 0,rgba(255,255,255,.18),transparent 60%);opacity:0;transition:opacity .6s}
+.pour:not(.armed) .flood::after,.pour.dripped .flood::after{opacity:1}
+/* drip curtain: columns of coating run down from the top edge at different speeds until they cover the band */
+.drip{position:absolute;top:-2px;height:calc(100% + 60px);background:var(--paint,#387FE5);border-radius:0 0 999px 999px}
+.drip::after{content:"";position:absolute;left:50%;bottom:-10px;width:62%;aspect-ratio:1;transform:translateX(-50%);background:inherit;border-radius:50%}
+.pour.armed .drip{height:0}
+.pour.go .drip{animation:drip var(--dur,1.6s) cubic-bezier(.5,0,.75,.55) var(--del,1s) both}
+@keyframes drip{0%{height:0}12%{height:var(--hang,14%)}35%{height:calc(var(--hang,14%) + 8%)}100%{height:calc(100% + 60px)}}
 .bucket{position:absolute;right:calc(var(--gut-r) + 4%);top:-6px;width:110px;transform-origin:20% 90%;transform:rotate(-120deg) translate(-10px,-30px);z-index:2}
 .pour.armed .bucket{transform:translateY(-140px)}
 .pour.go .bucket{animation:tip 2.6s ease-in-out forwards}
@@ -229,6 +234,8 @@ section{scroll-margin-top:76px}
 .tile:hover img{transform:scale(1.04)}
 .tile .t{position:absolute;left:10px;bottom:10px;background:rgba(18,36,63,.85);color:#fff;font:700 .68rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;padding:.45em .7em;border-radius:6px}
 .tile[hidden]{display:none!important}
+.gal-more{flex-direction:column;align-items:center;gap:10px}
+#galCount{font:700 .72rem var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 dialog.lb{border:0;padding:0;background:transparent;max-width:min(92vw,1100px);max-height:90vh}
 dialog.lb::backdrop{background:rgba(10,20,36,.88)}
 dialog.lb img{max-height:82vh;width:auto;margin:0 auto;border-radius:12px}
@@ -237,13 +244,19 @@ dialog.lb button{position:absolute;top:8px;right:8px;width:40px;height:40px;bord
 
 /* ---------- reviews ---------- */
 .reviews{background:var(--ice)}
-.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.quote{background:var(--white);border-radius:18px;padding:26px;display:grid;gap:16px;align-content:space-between}
+.rev-head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap;max-width:none}
+.g-score{display:grid;grid-template-columns:auto auto;column-gap:12px;align-items:center;background:var(--white);border-radius:16px;padding:14px 20px;text-decoration:none;box-shadow:0 10px 30px -18px rgba(18,36,63,.5)}
+.g-score b{grid-row:span 2;font:900 2.6rem/1 var(--f-display);letter-spacing:-.03em}
+.g-score small{font:700 .72rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.quotes{columns:3 300px;column-gap:16px}
+.quote{background:var(--white);border-radius:18px;padding:24px;display:grid;gap:14px;break-inside:avoid;margin:0 0 16px}
+.quote.new{animation:qin .5s ease-out both}
+@keyframes qin{from{opacity:0;transform:translateY(14px)}}
+.more-row{display:flex;justify-content:center;margin-top:10px}
 .stars{color:#F2B01E;letter-spacing:2px;font-size:1.1rem}
 .quote blockquote{margin:0;font-size:1.05rem;line-height:1.55}
 .quote cite{font-style:normal;font-weight:700}
 .quote cite span{display:block;font:600 .75rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-@media (max-width:900px){.quotes{grid-template-columns:1fr}}
 
 /* ---------- estimate ---------- */
 .estimate{background:var(--navy);color:#fff}
@@ -273,6 +286,17 @@ dialog.lb button{position:absolute;top:8px;right:8px;width:40px;height:40px;bord
 .err{color:#B4372F;font-size:.88rem;font-weight:600;min-height:1.3em}
 .attached{font:500 .82rem var(--f-mono);background:#EEF4FD;border-radius:10px;padding:10px 12px;color:var(--navy-2)}
 .done{text-align:center;display:grid;gap:12px;justify-items:center;padding:20px 0}
+.form{position:relative;overflow:hidden}
+.rally{position:absolute;inset:0;pointer-events:none;z-index:5}
+.rally .court-line{position:absolute;left:0;right:0;bottom:52px;height:3px;background:repeating-linear-gradient(90deg,var(--line) 0 18px,transparent 18px 30px);opacity:0;animation:fadeio 2.2s ease both}
+@keyframes fadeio{10%,80%{opacity:1}100%{opacity:0}}
+.rally .bx{position:absolute;left:0;bottom:55px;width:46px;height:46px}
+.rally .by{width:46px;height:46px}
+.rally svg{width:46px;height:46px;display:block}
+.rally .sh{position:absolute;left:3px;bottom:-6px;width:40px;height:9px;border-radius:50%;background:rgba(18,36,63,.22)}
+.done.pop>*{animation:pop .45s cubic-bezier(.2,1.4,.4,1) both}
+.done.pop>*:nth-child(2){animation-delay:.08s}.done.pop>*:nth-child(3){animation-delay:.16s}
+@keyframes pop{from{opacity:0;transform:scale(.6) translateY(10px)}}
 .done .ok{width:64px;height:64px;border-radius:50%;background:var(--good);display:grid;place-items:center}
 .proto-note{font:600 .75rem var(--f-mono);color:var(--muted);background:var(--paper);border-radius:8px;padding:8px 10px}
 @media (max-width:900px){.est{grid-template-columns:1fr}}
@@ -354,7 +378,7 @@ footer{background:#0B1729;color:#A9B8CE;padding-block:48px 110px;font-size:.92re
       <div class="stat"><b data-count="300" data-suffix="+">300+</b><span>Projects completed</span></div>
       <div class="stat"><b data-count="18">18</b><span>Color options</span></div>
       <div class="stat"><b data-count="1">1</b><span>Year warranty</span></div>
-      <div class="stat"><b>5.0</b><span>Google rating</span></div>
+      <div class="stat"><b>4.9</b><span>Google rating</span></div>
     </div>
     <button class="pour-again" id="pourAgain">Pour it again</button>
   </div>
@@ -487,6 +511,7 @@ footer{background:#0B1729;color:#A9B8CE;padding-block:48px 110px;font-size:.92re
       <button class="chip" aria-pressed="false" data-f="build">Behind the scenes</button>
     </div>
     <div class="grid" id="grid"></div>
+    <div class="more-row gal-more"><span id="galCount"></span><button class="btn btn-line" id="moreGal">Show more photos</button></div>
   </div>
   <dialog class="lb" id="lb"><button id="lbClose" aria-label="Close">×</button><img id="lbImg" alt=""><p id="lbCap"></p></dialog>
 </section>
@@ -494,15 +519,17 @@ footer{background:#0B1729;color:#A9B8CE;padding-block:48px 110px;font-size:.92re
 <!-- REVIEWS -->
 <section class="sec reviews" id="reviews">
   <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow">5.0 on Google</span>
-      <h2>What Utah homeowners say.</h2>
+    <div class="sec-head rev-head">
+      <div>
+        <span class="eyebrow">Real Google reviews</span>
+        <h2>What Utah homeowners say.</h2>
+      </div>
+      <a class="g-score" href="https://maps.google.com/?cid=4819366538087417373" target="_blank" rel="noopener">
+        <b>4.9</b><span class="stars" aria-hidden="true">★★★★★</span><small>85 reviews on Google</small>
+      </a>
     </div>
-    <div class="quotes">
-      <figure class="quote" style="margin:0"><div class="stars" aria-label="5 stars">★★★★★</div><blockquote>"I am a big believer in quality work. The crew at Ace Coatings over delivered! I couldn't be more happy with how my pickleball court turned out."</blockquote><cite>Jacob Perez<span>Homeowner</span></cite></figure>
-      <figure class="quote" style="margin:0"><div class="stars" aria-label="5 stars">★★★★★</div><blockquote>"Seriously one of the easiest companies I have worked with. Zach was so helpful from getting a bid to choosing our paint colors."</blockquote><cite>Lucy Fuller<span>Residential client</span></cite></figure>
-      <figure class="quote" style="margin:0"><div class="stars" aria-label="5 stars">★★★★★</div><blockquote>"Zach has an eye for detail and it shows in his work. The fact that they warranty their work just shows how serious they are about what they do."</blockquote><cite>TJ Green<span>Property manager</span></cite></figure>
-    </div>
+    <div class="quotes" id="quotes"></div>
+    <div class="more-row"><button class="btn btn-line" id="moreRev">Read more reviews</button></div>
   </div>
 </section>
 
@@ -661,14 +688,24 @@ if(RM){pos=stop;render()}else{pos=0;render();setTimeout(()=>sweep(0,2600),500)}
 /* ---------- POUR band ---------- */
 const pour=$('#pour');
 function countUp(){$$('[data-count]').forEach(el=>{const to=+el.dataset.count,suf=el.dataset.suffix||'';if(RM){el.textContent=to+suf;return}const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/1400);el.textContent=Math.round(to*(1-Math.pow(1-k,3)))+suf;if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)})}
-function doPour(){pour.classList.remove('go');void pour.offsetWidth;pour.classList.add('armed');requestAnimationFrame(()=>{pour.classList.add('go');setTimeout(countUp,900)})}
+// build the drip columns once; drips nearest the bucket (right side) start first
+(function(){const fl=pour.querySelector('.flood'),n=innerWidth<720?12:22,w=100/n;
+  for(let i=0;i<n;i++){const d=document.createElement('i');d.className='drip';const fromBucket=(n-1-i)/n;
+    d.style.left=(i*w-1.2)+'%';d.style.width=(w+2.4)+'%';
+    d.style.setProperty('--del',(0.95+fromBucket*0.55+Math.random()*0.25).toFixed(2)+'s');
+    d.style.setProperty('--dur',(1.3+Math.random()*0.9).toFixed(2)+'s');
+    d.style.setProperty('--hang',(6+Math.random()*22).toFixed(0)+'%');
+    fl.appendChild(d)}})();
+let pourT;
+function doPour(){pour.style.setProperty('--paint',coatColor);pour.classList.remove('go','dripped');void pour.offsetWidth;pour.classList.add('armed');clearTimeout(pourT);
+  requestAnimationFrame(()=>{pour.classList.add('go');setTimeout(countUp,900);pourT=setTimeout(()=>pour.classList.add('dripped'),3600)})}
 if(!RM && 'IntersectionObserver' in window){
   const r=pour.getBoundingClientRect();
   pour.classList.add('armed');
   if(r.top<innerHeight*.8){setTimeout(doPour,2900)} // visible on load: pour right after the squeegee pass
   else{const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){io.disconnect();doPour()}},{threshold:.2});io.observe(pour)}
 }
-$('#pourAgain').onclick=()=>{pour.style.setProperty('--paint',coatColor);doPour()};
+$('#pourAgain').onclick=()=>doPour();
 
 /* ---------- SERVICES ---------- */
 const SVC={
@@ -748,11 +785,141 @@ const G=[
  ['dsc02132','Finishing a purple and gray court','build'],
  ['air-00','Green kitchen, blue court','pickle air'],
  ['air-10','Bright blue pickleball','pickle air'],
- ['air-01','Backyard pickleball with a hoop','multi air']];
+ ['air-01','Backyard pickleball with a hoop','multi air'],
+ ["old-001", "Full-length blue and light blue multicourt with two hoops under string lights", "multi"],
+ ["old-002", "Navy and green pickleball court in a tree-shaded backyard", "pickle"],
+ ["old-003", "Maroon and tan multicourt with custom spear emblem and mountain view at dusk", "multi"],
+ ["old-004", "Navy and grey multicourt framed by white rock landscaping", "multi"],
+ ["old-005", "Royal blue and green fenced pickleball court beside a stone sound wall", "pickle"],
+ ["old-006", "Freshly coated all-blue backyard pickleball court", "pickle"],
+ ["old-007", "Hillside blue and grey multicourt with basketball hoop at sunset", "multi"],
+ ["old-008", "Forest green basketball half court with white farmhouse fencing", "multi"],
+ ["old-009", "Blue and slate grey pickleball court with in-ground basketball hoop", "multi"],
+ ["old-010", "Two-tone blue multicourt with portable pickleball net and basketball hoop", "multi"],
+ ["old-011", "Navy and bright blue multicourt inside block retaining walls", "multi"],
+ ["old-012", "Blue and green pickleball court with court lights along tiered stone walls", "pickle"],
+ ["old-013", "Bright blue multicourt with two grey pickleball courts and mountain views", "multi"],
+ ["old-014", "Navy and sky blue pickleball court seen from a covered patio", "pickle"],
+ ["old-015", "Gold and blue multicourt viewed from beneath the basketball hoop", "multi"],
+ ["old-016", "Blue pickleball court with tan kitchen and green border", "pickle"],
+ ["old-017", "Crimson and grey pickleball court beside a boulder retaining wall", "pickle"],
+ ["old-018", "Blue pickleball multicourt with custom mascot logo and court lights", "multi"],
+ ["old-019", "Bright blue side-yard pickleball court with basketball hoop", "multi"],
+ ["old-020", "Navy and light grey multicourt with pickleball net and basketball hoop", "multi"],
+ ["old-021", "Indoor purple and black pickleball courts inside a steel-frame facility", "pickle"],
+ ["old-022", "Rural blue and green pickleball court overlooking a pond", "pickle"],
+ ["old-023", "Brown, tan and green multicourt below snow-capped mountains", "multi"],
+ ["old-024", "Purple and grey multicourt with custom trident logo between retaining walls", "multi"],
+ ["old-025", "Two navy and green park pickleball courts beneath the foothills", "pickle"],
+ ["old-026", "All-green pickleball court with net under a large shade tree", "pickle"],
+ ["old-027", "Green pickleball court surrounded by lush garden landscaping", "pickle"],
+ ["old-028", "Backyard multicourt with blue and light blue color combination", "multi"],
+ ["old-029", "Indoor multicourt", "multi"],
+ ["old-030", "Backyard pickleball and basketball court combination", "multi"],
+ ["old-031", "Backyard pickleball court", "pickle"],
+ ["old-032", "Backyard outdoor pickleball court", "pickle"],
+ ["old-033", "Indoor multicourt with blue and light blue color combination", "multi"],
+ ["old-034", "Indoor pickleball court", "pickle"],
+ ["old-035", "Outdoor blue pickleball court", "pickle"],
+ ["old-036", "Outdoor multicourt", "multi"],
+ ["old-037", "Outdoor pickleball and basketball court combination", "multi"],
+ ["old-038", "Outdoor residential multicourt with green and light green color combination", "multi"],
+ ["old-039", "Outdoor pickleball court with green color", "pickle"],
+ ["old-040", "Residential pickleball court", "pickle"],
+ ["old-041", "Residential multicourt", "multi"],
+ ["old-042", "Residential backyard pickleball court", "pickle"],
+ ["old-043", "Residential pickleball court with green and light brown color combination", "pickle"],
+ ["old-044", "Grey and blue pickleball court", "pickle"],
+ ["old-045", "Grey multicourt", "multi"],
+ ["old-046", "Indoor multicourt, basketball and pickleball, grey and blue", "multi"],
+ ["old-047", "Indoor blue pickleball court", "pickle"],
+ ["old-048", "Grey and blue basketball court", "multi"],
+ ["old-049", "Blue pickleball court", "pickle"],
+ ["old-050", "Pickleball net installation", "build"],
+ ["old-051", "Grey and blue pickleball court from above", "pickle air"],
+ ["old-052", "Blue and red pickleball court with a hoop, from above", "multi air"],
+ ["old-053", "Full basketball and pickleball multicourt from above", "multi air"],
+ ["old-054", "Green and blue pickleball court with a hoop", "multi"],
+ ["old-055", "Blue pickleball court with a hoop", "multi"],
+ ["old-056", "Grey and blue pickleball court", "pickle"],
+ ["old-057", "Blue pickleball court with a hoop", "multi"],
+ ["old-058", "Blue basketball court coating", "multi"],
+ ["old-059", "Green and blue pickleball court with basketball", "multi"],
+ ["old-060", "Blue and grey full court basketball and pickleball", "multi"],
+ ["old-061", "Green, blue and grey pickleball court from above", "pickle air"],
+ ["old-062", "Blue pickleball court coating", "pickle"],
+ ["old-063", "Green and blue pickleball court with a hoop", "multi"],
+ ["old-064", "Blue pickleball and basketball multicourt from above", "multi air"],
+ ["old-065", "Blue backyard pickleball court", "pickle"],
+ ["old-066", "Blue and grey pickleball court with a panoramic view", "pickle"],
+ ["old-067", "Blue pickleball court in the countryside", "pickle"],
+ ["old-068", "Blue pickleball court at a townhome community", "pickle"],
+ ["old-069", "Blue backyard pickleball court with a hoop", "multi"],
+ ["old-070", "Blue, green and red backyard multicourt", "multi"],
+ ["old-071", "Green pickleball court with a mountain view", "pickle"],
+ ["old-072", "Blue and red backyard multicourt", "multi"],
+ ["old-073", "Green, blue and grey pickleball court", "pickle"],
+ ["old-074", "Green, yellow and blue multicourt", "multi"],
+ ["old-075", "Blue and red pickleball and basketball multicourt", "multi"],
+ ["old-076", "Grey pickleball court with a hoop and mountain view", "multi"],
+ ["old-077", "Squeegeeing a resurfacer coat", "build"],
+ ["old-078", "Line painting a basketball court", "build"],
+ ["old-079", "Spreading a green color coat", "build"],
+ ["old-080", "Surfacing a pickleball court", "build"],
+ ["old-081", "Measuring line placement", "build"],
+ ["old-082", "Painting a pickleball court", "build"],
+ ["old-083", "Painting lines on a blue and green court", "build"],
+ ["old-084", "Pickleball court line painting", "build"],
+ ["old-085", "Installing a pickleball net post", "build"],
+ ["old-086", "Prepping a townhome community court", "build"],
+ ["old-087", "Green color coat going down", "build"],
+ ["old-088", "Measuring before painting lines", "build"],
+ ["old-089", "Taping lines on a new court", "build"],
+ ["old-090", "Line painting", "build"],
+ ["old-091", "Pickleball court line painting", "build"],
+ ["old-092", "Working on a backyard slab", "build"],
+ ["old-093", "Taped lines on a blue and green court", "build"],
+ ["old-094", "Scrubbing the court before coating", "build"],
+ ["old-095", "Coating going down, from above", "build"],
+ ["old-096", "Squeegeeing a color coat", "build"]];
 const grid=$('#grid');
-G.forEach(([f,cap,tags])=>{const b=document.createElement('button');b.className='tile';b.dataset.tags=tags;b.innerHTML=`<img src="/img/${f}.jpg" alt="${cap}" loading="lazy"><span class="t">${tags.includes('build')?'In progress':tags.includes('multi')?'Multi-use':'Pickleball'}</span>`;b.onclick=()=>{$('#lbImg').src=`/img/${f}.jpg`;$('#lbImg').alt=cap;$('#lbCap').textContent=cap;$('#lb').showModal()};grid.appendChild(b)});
-$$('#filters .chip').forEach(c=>c.onclick=()=>{$$('#filters .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));const f=c.dataset.f;$$('.tile').forEach(t=>t.hidden=!(f==='all'||t.dataset.tags.split(' ').includes(f)))});
+G.forEach(([f,cap,tags])=>{const b=document.createElement('button');b.className='tile';b.dataset.tags=tags;b.innerHTML=`<img src="/img/t/${f}.jpg" alt="${cap}" loading="lazy" decoding="async"><span class="t">${tags.includes('build')?'In progress':tags.includes('multi')?'Multi-use':'Pickleball'}</span>`;b.onclick=()=>{$('#lbImg').src=`/img/${f}.jpg`;$('#lbImg').alt=cap;$('#lbCap').textContent=cap;$('#lb').showModal()};grid.appendChild(b)});
+let galF='all',galN=16;
+function renderGrid(){let k=0;$$('.tile').forEach(t=>{const m=galF==='all'||t.dataset.tags.split(' ').includes(galF);t.hidden=!m||k>=galN;if(m)k++});
+  const b=$('#moreGal');b.hidden=k<=galN;$('#galCount').textContent=`Showing ${Math.min(k,galN)} of ${k} photos`}
+$$('#filters .chip').forEach(c=>c.onclick=()=>{$$('#filters .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));galF=c.dataset.f;galN=16;renderGrid()});
+$('#moreGal').onclick=()=>{galN+=16;renderGrid()};renderGrid();
 $('#lbClose').onclick=()=>$('#lb').close();$('#lb').onclick=e=>{if(e.target.id==='lb')$('#lb').close()};
+
+/* ---------- REVIEWS ---------- */
+const REV=[["Nolan H.", "The team at Ace was amazing to work with. We couldn’t have asked for a better crew. We didn’t realize how much we’d use the court outside of Pickleball and basketball. And our kids love having friends over to play with and ride around in the safety of our side yard. The team was professional and timely and cleaned up after the work they did. Could not recommend them enough!"], ["Brooke P.", "We had a fantastic experience with Ace Coating! They painted both a pickleball court and a basketball court on our existing cement slab, and the results were incredible. They were prompt, professional, and hardworking from start to finish, and we felt the price was very fair for the quality of work they delivered. The finished courts look absolutely amazing, better than we even imagined. We couldn’t be happier and would highly recommend them!"], ["Greg L.", "Jace, Jake, and their install team were very good to work with. I had a number of questions regarding the prep, install, and finish of our pickleball court…and each time they provided legitimate answers, not just quick “cover” answers. Ours was a more difficult existing pad to prep, as it had wide control joints. I am a very detailed person and have high expectations…the details and expectations were met by Ace Coatings. I appreciate good, hard, and smart work."], ["Kate S.", "Very happy with how our pickleball/half court turned out from Ace coatings. What a transformation from a plain old cement pad. This beckons us to go out and play where previously….not so much. The crew was very professional, friendly and kept the work area tidy over the three days they were here."], ["Paul S.", "Ace did a great job on our indoor court. They ground the cement surface for good adhesion, went all the way to the edges, set it up so half the court was one of our favorite college teams while the other half was our other favorite college team, and ghosted in a basketball key so we can use it for basketball at one end of the court. Professional all the way!"], ["Chris A.", "I had a full pickle ball court and half basketball court done by ACE Coatings. To say I was extremely happy with the work is an understatement. I was completely blown away by the quality and finished product. I would highly highly recommend them. 5 stars all day long."], ["Jacob P.", "I am a big believer in quality work. The crew at Ace Coatings over delivered! I couldn't be more happy with how my pickleball court turned out."], ["Lucy F.", "Seriously one of the easiest companies I have worked with. Zach was so helpful from getting a bid to choosing our paint colors."], ["TJ G.", "Zach has an eye for detail and it shows in his work. The fact that they warranty their work just shows how serious they are about what they do."], ["Tony R.", "Really happy with the way our pickleball court turned out and Ace Coatings was great to work with and priced better than their competitors that we had bid the job. Thank you!"], ["Don K.", "Ace Coatings did an excellent job painting our pickleball court. The colors are excellent and the lines really pop. I am happy they recommended that we also seal the court with the 'court wax'. They were very fair with the pricing and we feel we got more that what we paid for! We receive many compliments on how good it looks, and how nice it is to play on!"], ["Casey", "Ace coatings came in and did a repair on my court that another company had been working on for seven weeks. The repaired, decorated and striped it in a day and a half. Thank you for being professional. I highly recommend this company."], ["Zak A.", "Jace, Nico and the rest of team at Ace Coatings are as good as you will possibly find in the industry. Personally having a background in construction, it’s rare to find someone who exceeds expectations. However, the work they did at my personal residence was absolutely exceptional! I highly recommend them!"], ["Marlin H.", "They showed a great deal of professionalism when they showed up and put on the undercoat. They were diligent when they put a color down and did an excellent job. They were very precise when they put the striping down. It all looks very nice and we had them put a seal coat on after everything was complete. We are very pleased with the product."], ["Julie K.", "From the very beginning to the end of this process, Ace Coatings was excellent to work with. Jake was very professional, fair and communicated very well throughout the entire process which we greatly appreciated. The guys that did the work on the court were professional and did an excellent job. We are thrilled with our court and happy we chose Ace Coatings."], ["Cathy F.", "Nico and Murray did an excellent job! They were friendly and asked me where I wanted the court placed. Zach came to put in the basketball hoop. They all talked to us throughout the project. These young men know what they are doing. I highly recommend Ace Coatings!!"], ["Mo W.", "We were looking to add pickleball lines to our driveway and spruce up our basketball lines. I am so glad we found Ace Coatings. They were very responsive to my many questions and did excellent work. They did everything on time and on budget. I am super happy with the result."], ["Jill W.", "Highly recommend Ace Coatings. Murray and Seth provided outstanding service! Very respectful and hardworking. Their dedication and communication perfectly reflect their commitment to providing a great finished product."], ["Ian", "I had an awesome experience with Ace Coatings. From start to finish, Jace was professional, responsive, and genuinely cared about the quality of the work. He took the time to walk me through the entire process, answered all my questions, and made sure everything was done right. The final result turned out even better than I expected."], ["Noah S.", "Jace and his team are a pleasure to work with. I’m usually super picky with some of my requests and they were more than happy to make any accommodations. They went above and beyond of what I even expected and am more than happy with the results. Highly recommend and will be using them for my future projects."], ["Molly A.", "We have been extremely satisfied with the process, timeliness and workmanship of Ace Coatings. There has been great communication, attention to detail and integrity. I would strongly recommend this company and their fantastic employees to anyone looking to install a pickleball court!"], ["Andrew J.", "Ace Coatings Utah did an amazing job! They were professional, on time, and the quality of their work was outstanding. Everything turned out even better than I expected, and they made the whole process easy from start to finish."], ["Landon S.", "Have worked with these guys time after time, you will not find a better experience or end result elsewhere. Jace, Jake, and their team go out of their way to provide the best courts in Utah at a fair price. Highly recommend."], ["Brandee S.", "Choosing to use Ace Coatings was the best decision! They were the best price, friendly, quick to respond to any questions I had, knowledgeable, and the finished product looks AMAZING!!! I will definitely be referring them to everyone I know."], ["Ian P.", "The team at Ace Coatings truly do go above and beyond! From our initial consultation to the completion of our court, Ace Coatings made the process simple and stress free! We absolutely love our new court. I would highly recommend this company"], ["Bo B.", "Nico and his crew did an amazing job painting our pickleball court! Thoroughly impressed during the whole process. 1000% recommend. Finished in 3 days!"], ["Wilmer M.", "This guys made a wonderful work on my pickleball and basketball court. They were very professional and responsible. I highly recommend them if you want to get a wonderful court."], ["Scottie F.", "Ace Coatings was a joy to work with. They were extremely professional and knowledgeable when it comes to the various coatings we could possibly put on our floor. Left us with a great product and would definitely use them again, and recommend them to anyone!"], ["Justin H.", "Great to work with and very responsive. They have done 6 courts for me and they have all been great! Quality is 100%"], ["Blue Rocky Mountain Construction", "I have worked with these guys on 7+ projects across 2yrs. Always great quality and fair pricing."], ["Becky R.", "These guys are so cool and fun to work with! They were super helpful! The timing and the quality of their work is second to none!!! My backyard looks sweet!"], ["JaNae A.", "My pickle ball court is Amazing. I chose purple and it looks so good. They paid attention to detail and did a great job!"], ["Luke L.", "Jake and the team at ACE Coatings did an amazing job creating my basketball/pickleball court! First class quality and service. Highly recommend 👌"], ["Connor M.", "Jake and Nico at Ace Coatings killed it with the pickle ball and basketball lines on my court. Super friendly and very thorough. Highly recommend!"], ["Malcolm S.", "Ace Coatings did a FANTASTIC JOB on the folks pickleball court. Punctual, great price, clear communication through out. Glad we went with them"], ["Doug P.", "Ace Coatings did my Pickleball court, and it turned out fantastic! The guys worked hard and did a great job! I highly recommend them to anyone!"], ["Sam N.", "Very communicative, every step of the way they made sure to confirm what we wanted, which we liked. Feel like we got the product we wanted."], ["Brian O.", "These guys were amazing! The attention to detail was like nothing I’ve ever seen before. You can’t go wrong with this group!"], ["Jaime W.", "I would highly recommend this company. They are great communicators and pay great attention to detail. My court is beautiful!!!"], ["Tristan W.", "Jace was so dope to work with! Highly recommend, hands down does the best work out there! He’s doing all my pickleball courts"], ["Gale F.", "Jace and team did a fabulous job! Very professional and easy to work with! I couldn’t be more happy with my court."], ["Finley", "Jace and Jake did a great job. I was hesitant to pull the trigger on a pickleball court, but it was the best decision I made! Thank you!!"], ["Paige C.", "Loved working with Ace Coatings! They did such a great job and were so friendly. We are super happy with our court!"], ["Kristi J.", "We love Ace Coatings! They were great to work with and they did an awesome job!! We would highly recommend them!"], ["Noah J.", "Worked with Jake & Jace, super stand up guys! Very professional, and educated me throughout the whole process!"], ["Sadie P.", "Very helpful and their communication has been great through the whole process! Would highly recommend them to anyone!"], ["Cary R.", "Great to work with! Really good communication and we are super happy with our finished product. Would 100% recommend"], ["Tylor S.", "From the work they do, to the client service, they are hands down the best company for courts."], ["Jordan M.", "Good honest dudes! Knowledgeable about what they do and will take care of you. 100% recommend."], ["Doug S.", "These guys did a great job!! They were easy to work with and the finished product looks amazing."], ["Josh T.", "Great communication and great install. Love our new pickle ball court!"], ["Emily R.", "Nice guys and really wanted to make sure it was done right. Great experience."], ["Andrew G.", "I have had 2 courts done with these guys, highly recommend"], ["Michelle H.", "Professional and showed up when they said they would. Court looks great."], ["Kelly P.", "Good communication. Timely service. High attention to detail. Competent."], ["B.T.", "Excellent customer service, professional crews. High quality work, honest price."], ["Mark M.", "Nico is the best! Expert service and such a great man!"], ["Briggs D.", "Great people. Great quality work. Will use again"], ["Stephanie N.", "The court looks amazing and was finished in such a timely manner"], ["LeGrande B.", "Easy to communicate with. Excellent experience."]];
+let revShown=0;const qBox=$('#quotes');
+function moreReviews(k){const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  REV.slice(revShown,revShown+k).forEach(([n,t],i)=>{const f=document.createElement('figure');f.className='quote'+(revShown?' new':'');f.style.animationDelay=(i*40)+'ms';
+    f.innerHTML=`<div class="stars" aria-label="5 stars">★★★★★</div><blockquote>"${esc(t)}"</blockquote><cite>${esc(n)}<span>Google review</span></cite>`;qBox.appendChild(f)});
+  revShown=Math.min(REV.length,revShown+k);
+  const b=$('#moreRev');if(revShown>=REV.length){b.textContent='See all reviews on Google';b.onclick=()=>open('https://maps.google.com/?cid=4819366538087417373','_blank','noopener')}}
+moreReviews(9);$('#moreRev').onclick=()=>moreReviews(12);
+
+/* ---------- pickleball rally across the form after a lead is sent ---------- */
+function rally(then){
+  const form=$('#form');if(RM||!form.animate){then();return}
+  const W=form.clientWidth,H=form.clientHeight,r=document.createElement('div');r.className='rally';
+  r.innerHTML=`<div class="court-line"></div><div class="bx"><div class="sh"></div><div class="by"><svg viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="21" fill="#D7F23A" stroke="#B8D21E" stroke-width="2"/><g fill="#A9C21A">${[[23,9],[12,15],[34,15],[8,26],[23,23],[38,26],[14,35],[32,35],[23,38]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.6"/>`).join('')}</g></svg></div></div>`;
+  form.appendChild(r);
+  const bx=r.querySelector('.bx'),by=r.querySelector('.by'),sv=r.querySelector('svg'),sh=r.querySelector('.sh');
+  const T=2100,top=Math.min(H-120,260);
+  // four bounces, each lower than the last: up eases out, down eases in
+  const hs=[1,.6,.34,.16],seg=1/hs.length,kf=[{transform:'translateY(-'+top+'px)',offset:0,easing:'cubic-bezier(.5,0,1,1)'}];
+  hs.forEach((k,i)=>{kf.push({transform:'translateY(0) scale(1.12,.86)',offset:seg*(i+.5)-.01,easing:'linear'});kf.push({transform:'translateY(0)',offset:seg*(i+.5),easing:'cubic-bezier(0,0,.5,1)'});
+    if(i<hs.length-1)kf.push({transform:`translateY(-${top*hs[i+1]}px)`,offset:seg*(i+1),easing:'cubic-bezier(.5,0,1,1)'})});
+  kf.push({transform:'translateY(0)',offset:1});
+  bx.animate([{transform:'translateX(-60px)'},{transform:`translateX(${W+20}px)`}],{duration:T,easing:'linear',fill:'forwards'});
+  by.animate(kf,{duration:T,fill:'forwards'});
+  sv.animate([{transform:'rotate(0)'},{transform:'rotate(900deg)'}],{duration:T,easing:'linear',fill:'forwards'});
+  sh.animate([{transform:'scale(.4)',opacity:.3},{transform:'scale(1)',opacity:1}],{duration:T/hs.length/2,iterations:hs.length*2,direction:'alternate',fill:'forwards'});
+  setTimeout(then,T*.55);setTimeout(()=>r.remove(),T+300);
+}
 
 /* ---------- FORM ---------- */
 let stepI=0;const qs=$$('.q'),bars=$$('.prog i');
@@ -766,7 +933,9 @@ $('#form').addEventListener('submit',e=>{e.preventDefault();
       design:useDesign?$('#attached').textContent.replace('Design attached: ',''):'',page:location.href,submitted_at:new Date().toISOString()};
     const btn=$('#next');btn.disabled=true;btn.textContent='Sending…';
     fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)}).then(r=>{if(!r.ok)throw new Error(r.status)
-      qs.forEach(q=>q.hidden=true);$('#formNav').hidden=true;$('.prog').hidden=true;$('#err').textContent='';$('#done').hidden=false;$('#doneT').textContent=`Thanks, ${lead.name.split(' ')[0]}! We'll reach out about your ${lead.service.toLowerCase()} soon.`;
+      const fm=$('#form');fm.style.minHeight=Math.max(fm.offsetHeight,300)+'px';
+      qs.forEach(q=>q.hidden=true);$('#formNav').hidden=true;$('.prog').hidden=true;$('#err').textContent='';$('#doneT').textContent=`Thanks, ${lead.name.split(' ')[0]}! We'll reach out about your ${lead.service.toLowerCase()} soon.`;
+      rally(()=>{const d=$('#done');d.hidden=false;d.classList.add('pop')});
       try{window.gtag&&gtag('event','generate_lead');window.fbq&&fbq('track','Lead')}catch(e){}
     }).catch(()=>{$('#err').textContent="That didn't go through. Please call or text us at 385-269-0060.";btn.disabled=false;btn.textContent='Get my free estimate'});
     return}
