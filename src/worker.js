@@ -1,18 +1,33 @@
-// Cloudflare Pages Function: POST /api/lead
-// Receives the 3-question estimate form and forwards it to the CRM.
-// The CRM address is NOT stored in this (public) repo. Set it in Cloudflare:
-//   Pages project > Settings > Variables and secrets > LEAD_WEBHOOK_URL
+// Cloudflare Worker for acecoatingsutah.com.
+// - Static files (the site) are served from ./public by Cloudflare automatically.
+// - POST /api/lead receives the 3-question estimate form and forwards it to the CRM.
+//
+// The CRM address is NOT stored in this repo. Set it in Cloudflare:
+//   Workers & Pages > ace-coatings-website > Settings > Variables and Secrets
+//   name: LEAD_WEBHOOK_URL   type: Secret
 // Today that is a GoHighLevel workflow "Inbound Webhook" URL.
-// When the business moves to ForgeIQ, swap that variable (and the payload
-// shape below, if ForgeIQ needs different field names). No other site change.
+// When the business moves to ForgeIQ, swap that value (and the payload field
+// names below, if ForgeIQ needs different ones). Nothing else changes.
 
 const MAX_LEN = 500;
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname === "/api/lead") {
+      if (request.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
+      return handleLead(request, env);
+    }
+    // Everything else: the static site.
+    return env.ASSETS.fetch(request);
+  },
+};
 
 function clean(v) {
   return typeof v === "string" ? v.trim().slice(0, MAX_LEN) : "";
 }
 
-export async function onRequestPost({ request, env }) {
+async function handleLead(request, env) {
   let body;
   try {
     body = await request.json();
