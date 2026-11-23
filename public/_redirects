@@ -14,3 +14,4 @@
 /articles              /blog/            301
 /articles/*            /blog/            301
 /post/:slug            /blog/:slug       301
+/designer /#design 302

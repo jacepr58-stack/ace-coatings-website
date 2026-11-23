@@ -122,7 +122,7 @@ def header():
   <div class="wrap">
     <a class="brand" href="/"><img src="/img/logo-icon-white.png" alt="">ACE COATINGS<small>UTAH</small></a>
     <nav class="nav" id="nav">
-      <a href="/#services">Services</a><a href="/designer">Design your court</a><a href="/#work">Our work</a><a href="/locations/">Areas we serve</a><a href="/blog/">Blog</a>
+      <a href="/#services">Services</a><a href="/#design">Design your court</a><a href="/#work">Our work</a><a href="/locations/">Areas we serve</a><a href="/blog/">Blog</a>
     </nav>
     <a class="phone" href="tel:{PHONE_TEL}" style="text-decoration:none">{PHONE}</a>
     <a class="btn btn-blue" href="/#estimate">Free estimate</a>
@@ -451,7 +451,6 @@ def build_privacy():
 <h2>Information you give us</h2>
 <p>When you ask for an estimate, the form collects:</p>
 <ul><li>The kind of project you want (for example, a new court or resurfacing)</li><li>Your city or ZIP code</li><li>Your name and mobile number</li><li>Any court colors you designed or add-ons you picked on the site</li></ul>
-<p>When you send a design from our court designer, we also collect your email address, a picture of the court you designed (including any logo you upload), and a list of what you put on it. We email that design to you and keep a copy so we can quote your project.</p>
 <p>We also record the page you sent the form from and the time you sent it. If you call, text, or email us, we keep what you share in those messages.</p>
 <h2>How we use it</h2>
 <ul><li>To contact you about your estimate and project by phone, text, or email</li><li>To prepare quotes, schedule work, and provide our services</li><li>To keep records of our customers and projects</li><li>To understand how people use our site and how well our ads work</li></ul>
@@ -459,7 +458,7 @@ def build_privacy():
 <h2>Text messages</h2>
 <p>If you give us your mobile number, we may call or text you about your estimate or project. Message frequency varies, and message and data rates may apply. Reply STOP to opt out of texts at any time, or HELP for help. Mobile numbers and text messaging consent are not shared with third parties or affiliates for their marketing or promotional purposes.</p>
 <h2>Who we share it with</h2>
-<p>We share information only with service providers that help us run the business, such as our customer management (CRM) software, website hosting, email delivery, and phone and texting providers. They may use it only to provide services to us. We may also share information if the law requires it, or to protect our rights or the safety of others.</p>
+<p>We share information only with service providers that help us run the business, such as our customer management (CRM) software, website hosting, and phone and texting providers. They may use it only to provide services to us. We may also share information if the law requires it, or to protect our rights or the safety of others.</p>
 <h2>Cookies, analytics and advertising</h2>
 <p>Our site uses Google Analytics to understand how visitors use it, and Google Ads and the Meta (Facebook) pixel to measure and improve our advertising. These tools use cookies and similar technology to collect information such as pages visited, the device and browser you use, and how you reached the site. Google and Meta may use this information as described in their own privacy policies.</p>
 <p>You can opt out of Google Analytics with the <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener">Google Analytics opt-out add-on</a>, change ad personalization at <a href="https://adssettings.google.com" rel="noopener">Google Ad Settings</a>, and manage Meta ads in your <a href="https://www.facebook.com/adpreferences" rel="noopener">Facebook ad preferences</a>. You can also block or delete cookies in your browser settings.</p>
@@ -482,13 +481,14 @@ def build_privacy():
 # ---------------------------------------------------------------- court designer
 def build_designer():
     body = (CONTENT / 'designer_body.html').read_text()
-    write('designer.html', page('/designer', 'Court Designer | Design Your Pickleball or Basketball Court | Ace Coatings',
-          'Design your backyard court online: set your slab size, add pickleball, basketball and tennis lines, hoops, lights, chain link fence and your logo, then email it to yourself.', body))
+    # Not public yet (Jace, 2026-11-23): unlinked, noindex preview. Move back to designer.html + sitemap when approved.
+    write('designer-preview.html', page('/designer-preview', 'Court Designer | Design Your Pickleball or Basketball Court | Ace Coatings',
+          'Design your backyard court online: set your slab size, add pickleball, basketball and tennis lines, hoops, lights, chain link fence and your logo, then email it to yourself.', body, noindex=True))
 
 
 # ---------------------------------------------------------------- sitemap and robots
 def build_sitemap(posts, cities):
-    urls = [('/', TODAY, '1.0'), ('/locations/', TODAY, '0.8'), ('/blog/', TODAY, '0.7'), ('/privacy', TODAY, '0.2'), ('/designer', TODAY, '0.9')]
+    urls = [('/', TODAY, '1.0'), ('/locations/', TODAY, '0.8'), ('/blog/', TODAY, '0.7'), ('/privacy', TODAY, '0.2')]
     urls += [(f'/locations/{slug(c)}', TODAY, '0.7') for c in cities]
     urls += [(f'/blog/{p["slug"]}', p['date'], '0.6') for p in posts]
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

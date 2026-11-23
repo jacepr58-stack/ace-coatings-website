@@ -91,7 +91,7 @@ async function handleDesign(request, env) {
   const email = clean(b.email).slice(0, 120);
   const phone = clean(b.phone).slice(0, 20);
   const summary = typeof b.summary === "string" ? b.summary.trim().slice(0, 3000) : "";
-  const link = typeof b.link === "string" && /^https:\/\/(www\.)?(acecoatingsutah\.com|ace-coatings-website\.jacepr58\.workers\.dev)\/designer#d=[\w-]+$/.test(b.link) && b.link.length < 8000 ? b.link : "";
+  const link = typeof b.link === "string" && /^https:\/\/(www\.)?(acecoatingsutah\.com|ace-coatings-website\.jacepr58\.workers\.dev)\/designer(-preview)?#d=[\w-]+$/.test(b.link) && b.link.length < 8000 ? b.link : "";
   const png = typeof b.png === "string" && b.png.startsWith("data:image/png;base64,") && b.png.length < MAX_PNG ? b.png.slice(22) : "";
   if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || phone.replace(/\D/g, "").length < 10) {
     return json({ ok: false, error: "missing_fields" }, 422);

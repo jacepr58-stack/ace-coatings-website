@@ -575,7 +575,7 @@ const b64 = s => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').repla
 const unb64 = s => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/'))));
 function shareLink() {
   const lite = JSON.parse(JSON.stringify(S)); lite.items = lite.items.filter(i => i.type !== 'logo'); lite.night = false;
-  return location.origin + '/designer#d=' + b64(JSON.stringify(lite));
+  return location.origin + location.pathname + '#d=' + b64(JSON.stringify(lite));
 }
 $('#cd-share').onclick = async () => {
   const u = shareLink();
