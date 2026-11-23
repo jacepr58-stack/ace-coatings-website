@@ -41,6 +41,7 @@ async function handleLead(request, env) {
     service: clean(body.service),
     location: clean(body.location),
     design: clean(body.design),
+    addons: clean(body.addons),
     page: clean(body.page),
     submitted_at: clean(body.submitted_at) || new Date().toISOString(),
     source: "acecoatingsutah.com estimate form",

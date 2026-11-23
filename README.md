@@ -25,7 +25,7 @@ Until `LEAD_WEBHOOK_URL` is set, the form shows a "call or text us" message inst
 Today leads go to a GoHighLevel workflow with an Inbound Webhook trigger.
 After the move to ForgeIQ, change `LEAD_WEBHOOK_URL` (and the field names in `src/worker.js` if ForgeIQ needs different ones).
 
-Fields sent: `name`, `first_name`, `last_name`, `phone`, `service`, `location`, `design`, `page`, `submitted_at`, `source`.
+Fields sent: `name`, `first_name`, `last_name`, `phone`, `service`, `location`, `design` (court colors and any add-ons), `addons`, `page`, `submitted_at`, `source`.
 
 ## Local preview
 

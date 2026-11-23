@@ -226,8 +226,8 @@ section{scroll-margin-top:76px}
 
 /* ---------- gallery ---------- */
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
-.filters .chip{color:var(--ink);border-color:var(--line);background:var(--white)}
-.filters .chip[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.filters .chip,#aoFilters .chip{color:var(--ink);border-color:var(--line);background:var(--white)}
+.filters .chip[aria-pressed="true"],#aoFilters .chip[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
 .grid{columns:4 220px;column-gap:14px}
 .tile{break-inside:avoid;margin-bottom:14px;border-radius:14px;overflow:hidden;position:relative;cursor:zoom-in;display:block;width:100%;border:0;padding:0;background:var(--line)}
 .tile img{width:100%;transition:transform .4s}
@@ -241,6 +241,35 @@ dialog.lb::backdrop{background:rgba(10,20,36,.88)}
 dialog.lb img{max-height:82vh;width:auto;margin:0 auto;border-radius:12px}
 dialog.lb p{color:#fff;text-align:center;margin-top:10px;font-weight:600}
 dialog.lb button{position:absolute;top:8px;right:8px;width:40px;height:40px;border-radius:50%;border:0;background:#fff;color:var(--navy);font-size:1.3rem;cursor:pointer}
+
+/* ---------- add-ons ---------- */
+.addons{background:var(--white);position:relative}
+.ao-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.ao{border:2px solid var(--line);border-radius:18px;overflow:hidden;display:grid;grid-template-rows:auto 1fr;background:var(--white);transition:border-color .2s,box-shadow .2s,transform .2s}
+.ao:hover{transform:translateY(-3px);box-shadow:0 18px 40px -24px rgba(18,36,63,.45)}
+.ao.on{border-color:var(--blue);box-shadow:0 0 0 4px rgba(56,127,229,.15)}
+.ao{min-width:0}
+.ao .pic{background:#fff;height:230px;display:flex;align-items:center;justify-content:center;padding:16px;border-bottom:1px solid var(--line);overflow:hidden}
+.ao .pic img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.ao .body{padding:20px;display:grid;gap:10px;align-content:start}
+.ao .kind{font:700 .7rem var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+.ao h3{margin:0;font-size:1.2rem;line-height:1.25}
+.ao p{margin:0;color:var(--muted);font-size:.95rem}
+.ao ul{margin:0;padding-left:1.1em;font-size:.92rem;display:grid;gap:4px}
+.ao .pickb{margin-top:6px;justify-self:start;border:2px solid var(--line);background:var(--white);color:var(--ink);font:700 .92rem var(--f-body);padding:.7em 1.1em;border-radius:999px;cursor:pointer;display:inline-flex;gap:.5em;align-items:center}
+.ao .pickb[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.ao[hidden]{display:none!important}
+.ao-extra{margin-top:30px;background:var(--paper);border-radius:18px;padding:22px 24px}
+.ao-extra h3{margin:0 0 10px;font-size:1.05rem}
+.ao-extra ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.ao-extra li{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;background:var(--white);border-radius:12px;padding:12px 14px;font-size:.92rem}
+.ao-extra li b{display:block}
+.ao-extra li span{color:var(--muted)}
+.ao-extra .mini{flex:none;border:2px solid var(--line);background:var(--white);border-radius:999px;width:34px;height:34px;font:800 1.1rem/1 var(--f-body);cursor:pointer;color:var(--ink)}
+.ao-extra .mini[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.ao-bar{position:sticky;bottom:16px;margin:26px auto 0;width:max-content;max-width:calc(100% - 32px);display:flex;gap:14px;align-items:center;background:var(--navy);color:#fff;border-radius:999px;padding:8px 8px 8px 20px;box-shadow:0 20px 40px -20px rgba(0,0,0,.6);font-weight:650;z-index:5;animation:qin .35s ease-out}
+@media (max-width:900px){.ao-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.ao-grid{grid-template-columns:minmax(0,1fr)}.ao-bar{bottom:84px;font-size:.9rem}.ao-bar .btn{padding:.8em 1em}}
 
 /* ---------- reviews ---------- */
 .reviews{background:var(--ice)}
@@ -458,6 +487,29 @@ footer{background:#0B1729;color:#A9B8CE;padding-block:48px 110px;font-size:.92re
   </div>
 </section>
 
+<!-- ADD-ONS -->
+<section class="sec addons" id="addons">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Finish it out</span>
+      <h2>Add-ons we install.</h2>
+      <p class="lede">Hoops, lights, and nets from Dominator, the equipment we trust on our own courts. Tap <b>Add to my estimate</b> on anything you want and we'll price it with your court.</p>
+    </div>
+    <div class="filters" id="aoFilters">
+      <button class="chip" aria-pressed="true" data-f="all">All</button>
+      <button class="chip" aria-pressed="false" data-f="hoop">Basketball hoops</button>
+      <button class="chip" aria-pressed="false" data-f="light">Court lights</button>
+      <button class="chip" aria-pressed="false" data-f="net">Pickleball nets</button>
+    </div>
+    <div class="ao-grid" id="aoGrid"></div>
+    <div class="ao-extra">
+      <h3>Also available</h3>
+      <ul id="aoMore"></ul>
+    </div>
+  </div>
+  <div class="ao-bar" id="aoBar" hidden><span id="aoCount"></span><a class="btn btn-blue" href="#estimate">Add to my estimate</a></div>
+</section>
+
 <!-- LAYERS -->
 <section class="sec" id="layers">
   <div class="wrap layers">
@@ -568,6 +620,7 @@ footer{background:#0B1729;color:#A9B8CE;padding-block:48px 110px;font-size:.92re
         <div class="field"><label for="name">Name</label><input id="name" name="name" autocomplete="name"></div>
         <div class="field"><label for="phone">Mobile number</label><input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel"></div>
         <div class="attached" id="attached" hidden></div>
+        <div class="attached" id="attachedAddons" hidden></div>
       </div>
       <div class="done" id="done" hidden>
         <div class="ok"><svg width="30" height="30" viewBox="0 0 20 20"><path d="M5 10.5l3 3 7-7" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></div>
@@ -755,6 +808,32 @@ for(const z in design)paintZone(z,design[z],true);syncPanel();
 let useDesign=false;
 $('#useDesign').onclick=()=>{useDesign=true;const a=$('#attached');a.hidden=false;a.textContent=`Design attached: ${design.court} court, ${design.kitchen} kitchen, ${design.border} border${hoops?', basketball lines':''}`};
 
+/* ---------- ADD-ONS ---------- */
+const AO=[
+ {k:'hoop',id:'hoop-glass',t:'In-ground hoop, glass backboard',img:'hoop-glass',p:'Tempered glass for a true rebound, a rust-proof aluminum pole, and height you can adjust for any age.',l:['54", 60", or 72" backboard','Smaller overhangs fit tight yards','Brushed aluminum or black']},
+ {k:'hoop',id:'hoop-pro72',t:'Pro 72" hoop, shatterproof backboard',img:'hoop-pro72',p:'A full-size perforated aluminum backboard that plays like glass but can\'t crack.',l:['Gym-level rebound','Adjustable height','Rust-proof build']},
+ {k:'light',id:'light-wired',t:'16-ft court light system',img:'light-wired',p:'Square aluminum light poles with 150-watt LED fixtures for night games.',l:['1, 2, or 3 lights per pole','6061 aluminum pole, galvanized anchor bolts','Black or brushed aluminum']},
+ {k:'light',id:'light-solar',t:'Solar court lights',img:'light-solar',p:'100-watt solar LED fixtures. No trenching for power.',l:['Each light covers about 40 x 50 ft','About 8 hours to charge, up to 12 hours of light','Mounts on the 16-ft pole']},
+ {k:'net',id:'pb-inground',t:'In-ground pickleball posts and net',img:'pb-inground',p:'Permanent posts set in the court with a crank to adjust net tension.',l:['Regulation height: 36" at the posts, 34" in the middle','Round or square posts','Black or brushed aluminum']},
+ {k:'net',id:'pb-promax',t:'Pro Max rolling pickleball net',img:'pb-promax',p:'A regulation-style net on locking wheels. Roll it off when you want the whole court for basketball.',l:['6061 aluminum frame, stainless hardware','Wheels lock in place during play','Limited lifetime warranty']}];
+const AO_MORE=[
+ {id:'pb-surface',t:'Surface-mount pickleball posts',d:'Bolt to the slab with a crank for net tension.'},
+ {id:'pb-portable',t:'Portable pickleball net',d:'Lightweight aluminum frame, rust-proof.'},
+ {id:'hoop-light-net',t:'Hoop-to-light netting',d:'A regulation net strung between your hoop and light pole.'},
+ {id:'pads',t:'Backboard and pole padding',d:'Extra protection for Dominator hoops.'},
+ {id:'alta',t:'ALTA portable light',d:'13 ft tall, 6,300 lumens, battery or plug-in.'}];
+const picked=new Set(),aoName={};AO.forEach(a=>aoName[a.id]=a.t);AO_MORE.forEach(a=>aoName[a.id]=a.t);
+const aoGrid=$('#aoGrid');
+AO.forEach(a=>{const el=document.createElement('article');el.className='ao';el.dataset.k=a.k;el.dataset.id=a.id;
+  el.innerHTML=`<div class="pic"><img src="/img/addons/${a.img}.jpg" alt="${a.t}" loading="lazy"></div><div class="body"><span class="kind">${{hoop:'Basketball',light:'Lighting',net:'Pickleball'}[a.k]}</span><h3>${a.t}</h3><p>${a.p}</p><ul>${a.l.map(x=>`<li>${x}</li>`).join('')}</ul><button class="pickb" aria-pressed="false" data-id="${a.id}">+ Add to my estimate</button></div>`;aoGrid.appendChild(el)});
+$('#aoMore').innerHTML=AO_MORE.map(a=>`<li><div><b>${a.t}</b><span>${a.d}</span></div><button class="mini" aria-pressed="false" data-id="${a.id}" aria-label="Add ${a.t} to my estimate">+</button></li>`).join('');
+function syncAO(){$$('[data-id].pickb,[data-id].mini').forEach(b=>{const on=picked.has(b.dataset.id);b.setAttribute('aria-pressed',on);if(b.classList.contains('pickb'))b.textContent=on?'✓ Added to estimate':'+ Add to my estimate';else b.textContent=on?'✓':'+'});
+  $$('.ao').forEach(c=>c.classList.toggle('on',picked.has(c.dataset.id)));
+  const n=picked.size;$('#aoBar').hidden=!n;$('#aoCount').textContent=`${n} add-on${n===1?'':'s'} picked`;
+  const box=$('#attachedAddons');box.hidden=!n;box.textContent=n?'Add-ons: '+[...picked].map(i=>aoName[i]).join(', '):''}
+$$('#addons [data-id]').forEach(b=>{if(b.tagName==='BUTTON')b.onclick=()=>{const id=b.dataset.id;picked.has(id)?picked.delete(id):picked.add(id);syncAO()}});
+$$('#aoFilters .chip').forEach(c=>c.onclick=()=>{$$('#aoFilters .chip').forEach(x=>x.setAttribute('aria-pressed',x===c));const f=c.dataset.f;$$('.ao').forEach(a=>a.hidden=!(f==='all'||a.dataset.k===f))});
+
 /* ---------- LAYERS ---------- */
 const LAYERS=[
  {t:'Concrete slab',d:'The foundation. A properly sloped, reinforced slab sheds water and keeps the court from heaving through Utah freeze and thaw. On new builds we pour it ourselves.'},
@@ -930,7 +1009,8 @@ $('#form').addEventListener('submit',e=>{e.preventDefault();
   if(stepI===1&&$('#city').value.trim().length<2){$('#err').textContent='Add a city or ZIP so we know where the court is.';return}
   if(stepI===2){if(!$('#name').value.trim()||$('#phone').value.replace(/\D/g,'').length<10){$('#err').textContent='Add your name and a 10-digit phone number.';return}
     const lead={service:$('input[name=svc]:checked').value,location:$('#city').value.trim(),name:$('#name').value.trim(),phone:$('#phone').value.trim(),
-      design:useDesign?$('#attached').textContent.replace('Design attached: ',''):'',page:location.href,submitted_at:new Date().toISOString()};
+      design:[useDesign?$('#attached').textContent.replace('Design attached: ',''):'',picked.size?'Add-ons: '+[...picked].map(i=>aoName[i]).join(', '):''].filter(Boolean).join(' | '),
+      addons:[...picked].map(i=>aoName[i]).join(', '),page:location.href,submitted_at:new Date().toISOString()};
     const btn=$('#next');btn.disabled=true;btn.textContent='Sending…';
     fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(lead)}).then(r=>{if(!r.ok)throw new Error(r.status)
       const fm=$('#form');fm.style.minHeight=Math.max(fm.offsetHeight,300)+'px';
