@@ -362,7 +362,7 @@ footer{background:#0B1729;color:#A9B8CE;padding-block:48px 110px;font-size:.92re
 </section>
 
 <!-- POUR: bucket tips, coating floods the band -->
-<section class="pour" id="pour" aria-label="By the numbers" style="--paint:#EC5C9A">
+<section class="pour" id="pour" aria-label="By the numbers">
   <svg class="bucket" viewBox="0 0 120 130" aria-hidden="true">
     <path d="M22 18 Q60 -14 98 18" fill="none" stroke="#C7CCD3" stroke-width="5"/>
     <path d="M14 26h92l-10 96H24z" fill="#F4F6F9"/>
@@ -697,8 +697,7 @@ function countUp(){$$('[data-count]').forEach(el=>{const to=+el.dataset.count,su
     d.style.setProperty('--hang',(6+Math.random()*22).toFixed(0)+'%');
     fl.appendChild(d)}})();
 let pourT;
-const POUR_PINK='#EC5C9A'; // Jace: the pour band always drips pink
-function doPour(){pour.style.setProperty('--paint',POUR_PINK);pour.classList.remove('go','dripped');void pour.offsetWidth;pour.classList.add('armed');clearTimeout(pourT);
+function doPour(){pour.style.setProperty('--paint',coatColor);pour.classList.remove('go','dripped');void pour.offsetWidth;pour.classList.add('armed');clearTimeout(pourT);
   requestAnimationFrame(()=>{pour.classList.add('go');setTimeout(countUp,900);pourT=setTimeout(()=>pour.classList.add('dripped'),3600)})}
 if(!RM && 'IntersectionObserver' in window){
   const r=pour.getBoundingClientRect();
