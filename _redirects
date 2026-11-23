@@ -1,0 +1,12 @@
+# Old GoHighLevel page addresses -> sections of the new site (301 keeps Google rankings).
+/home                  /                 301
+/court-surfacing       /#services        301
+/court-construction    /#services        301
+/court-resurfacing     /#services        301
+/ace-signature-courts  /#services        301
+/about                 /#process         301
+/portfolio             /#work            301
+/reviews               /#reviews         301
+/contact-us            /#estimate        301
+# Still to do before launch: /blogs (and each blog post) and /privacy-and-policy
+# need their own pages here so those addresses don't 404.
