@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Court Designer | Design Your Pickleball or Basketball Court | Ace Coatings</title>
+<meta name="description" content="Design your backyard court online: set your slab size, add pickleball, basketball and tennis lines, hoops, lights, chain link fence and your logo, then email it to yourself.">
+<link rel="canonical" href="https://acecoatingsutah.com/designer">
+<link rel="icon" type="image/png" href="/img/logo-icon.png">
+<meta property="og:title" content="Court Designer | Design Your Pickleball or Basketball Court | Ace Coatings">
+<meta property="og:description" content="Design your backyard court online: set your slab size, add pickleball, basketball and tennis lines, hoops, lights, chain link fence and your logo, then email it to yourself.">
+<meta property="og:image" content="https://acecoatingsutah.com/img/ig-1-full-build-navy.jpg">
+<meta property="og:url" content="https://acecoatingsutah.com/designer">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="/css/site.css">
+<script src="/js/track.js" async></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/"><img src="/img/logo-icon-white.png" alt="">ACE COATINGS<small>UTAH</small></a>
+    <nav class="nav" id="nav">
+      <a href="/#services">Services</a><a href="/designer">Design your court</a><a href="/#work">Our work</a><a href="/locations/">Areas we serve</a><a href="/blog/">Blog</a>
+    </nav>
+    <a class="phone" href="tel:+13852690060" style="text-decoration:none">385-269-0060</a>
+    <a class="btn btn-blue" href="/#estimate">Free estimate</a>
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
+</header>
+<main>
+<link rel="stylesheet" href="/css/designer.css">
+<section class="phead cd-head"><div class="wrap"><span class="eyebrow">Court designer</span><h1>Design your court</h1><p class="lede">Set your slab size, drop in courts, hoops, lights and fence, and paint it your way. Email it to yourself and we'll quote it.</p></div></section>
+<section class="cd"><div class="wrap cd-grid">
+  <div class="cd-stagewrap">
+    <div class="cd-stage" id="cd-stage">
+      <svg id="cd-svg" role="img" aria-label="Your court design. Drag items to move them."></svg>
+      <div class="cd-bar">
+        <button type="button" class="cd-tool" id="cd-night" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg><span>Lights on</span></button>
+        <span class="cd-lit" id="cd-lit" aria-live="polite"></span>
+        <span class="cd-sp"></span>
+        <button type="button" class="cd-tool" id="cd-undo" title="Undo (Ctrl+Z)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span>Undo</span></button>
+      </div>
+    </div>
+    <div class="cd-actions">
+      <button type="button" class="btn btn-blue" id="cd-export">Email me my design</button>
+      <button type="button" class="btn btn-line" id="cd-png">Download image</button>
+      <button type="button" class="btn btn-line" id="cd-share">Copy link</button>
+    </div>
+    <div class="cd-send" id="cd-send" hidden>
+      <form id="cd-form" novalidate>
+        <h2>Where should we send it?</h2>
+        <p class="cd-hint">We'll email you a picture of your court, and a copy goes to our team so we can put together your quote.</p>
+        <div class="cd-fields">
+          <label>Name<input name="name" id="cd-name" autocomplete="name" maxlength="80" required></label>
+          <label>Email<input name="email" type="email" autocomplete="email" maxlength="120" required></label>
+          <label>Phone<input name="phone" type="tel" autocomplete="tel" maxlength="20" required></label>
+          <label class="cd-hp" aria-hidden="true">Company<input name="company" tabindex="-1" autocomplete="off"></label>
+        </div>
+        <details class="cd-sumbox"><summary>What's in your design</summary><pre id="cd-sum"></pre></details>
+        <p class="cd-msg" id="cd-msg" role="alert"></p>
+        <div class="cd-actions"><button class="btn btn-blue" id="cd-go">Email my design</button><button type="button" class="btn btn-line" id="cd-cancel">Keep designing</button></div>
+        <p class="cd-fine">By sending, you agree we can call, text or email you about your project. See our <a href="/privacy">privacy policy</a>.</p>
+      </form>
+      <div id="cd-done" hidden><h2>Thanks!</h2><p id="cd-done-msg"></p><div class="cd-actions"><button type="button" class="btn btn-line" id="cd-done-png">Download a copy</button></div></div>
+    </div>
+  </div>
+  <aside class="cd-panel">
+    <details class="cd-card" open><summary>1. Your slab</summary>
+      <form id="cd-slabform" class="cd-slab" onsubmit="return false">
+        <label>Length<span class="cd-num"><input id="cd-L" type="number" min="10" max="200" step="1" inputmode="numeric"> ft</span></label>
+        <label>Width<span class="cd-num"><input id="cd-W" type="number" min="10" max="200" step="1" inputmode="numeric"> ft</span></label>
+      </form>
+      <div class="cd-row"><span class="cd-lbl">Base color</span><div id="cd-slabsw"></div></div>
+      <div class="cd-row"><span class="cd-lbl">Or start from a layout</span><div class="cd-presets" id="cd-presets"></div></div>
+    </details>
+    <details class="cd-card" open><summary>2. Add to your court</summary>
+      <div class="cd-add" id="cd-add">
+        <button type="button" data-add="pickleball">+ Pickleball lines</button>
+        <button type="button" data-add="basket">+ Basketball lines</button>
+        <button type="button" data-add="tennis">+ Tennis lines</button>
+        <button type="button" data-add="hoop">+ Hoop</button>
+        <button type="button" data-add="light">+ Light pole</button>
+        <button type="button" data-add="fence">+ Fence section</button>
+        <button type="button" data-add="fenceall">+ Fence all around</button>
+        <button type="button" data-add="logo">+ Upload logo</button>
+      </div>
+      <input type="file" id="cd-logofile" accept="image/*" hidden>
+    </details>
+    <div class="cd-card cd-inspcard"><div id="cd-insp"></div></div>
+    <details class="cd-card"><summary>On your court</summary><ul class="cd-list" id="cd-list"></ul><button type="button" class="cd-mini warn" id="cd-reset">Start over</button></details>
+    <p class="cd-fine">Colors on screen are close but not exact; we bring real samples. Light coverage is an estimate from Dominator's published specs, and we confirm the layout on site.</p>
+  </aside>
+</div>
+<div class="cd-toast" id="cd-toast" role="status" hidden></div>
+</section>
+<script src="/js/designer.js" defer></script>
+
+</main>
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div><a class="brand" href="/"><img src="/img/logo-icon-white.png" alt="">ACE COATINGS<small>UTAH</small></a><p style="margin-top:14px;max-width:34ch">Court construction, resurfacing, and coating for pickleball, tennis, and basketball across Utah.</p></div>
+      <div><h4>Services</h4><ul><li><a href="/#services">New courts</a></li><li><a href="/#services">Resurfacing</a></li><li><a href="/#services">Coating</a></li><li><a href="/#addons">Hoops, lights &amp; nets</a></li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="/#work">Our work</a></li><li><a href="/#reviews">Reviews</a></li><li><a href="/locations/">Areas we serve</a></li><li><a href="/blog/">Blog</a></li><li><a href="https://www.instagram.com/acecoatings/" rel="noopener">Instagram</a></li></ul></div>
+      <div><h4>Contact</h4><ul><li><a href="tel:+13852690060">385-269-0060</a></li><li><a href="mailto:info@acecoatingsutah.com">info@acecoatingsutah.com</a></li><li>Spanish Fork, Utah</li></ul></div>
+    </div>
+    <div class="copy">© 2026 Ace Coatings. All rights reserved. · <a href="/privacy" style="text-decoration:none">Privacy policy</a></div>
+  </div>
+</footer>
+<div class="mcta"><a class="btn btn-ghost" href="tel:+13852690060">Call</a><a class="btn btn-blue" href="/#estimate">Free estimate</a></div>
+<script>(()=>{const b=document.getElementById('menuBtn'),n=document.getElementById('nav');b.onclick=()=>{b.setAttribute('aria-expanded',n.classList.toggle('open'))}})()</script>
+</body>
+</html>

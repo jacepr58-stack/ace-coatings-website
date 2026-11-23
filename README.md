@@ -50,3 +50,15 @@ Fields sent: `name`, `first_name`, `last_name`, `phone`, `service`, `location`, 
 ## Copy rule
 
 Never put the word "sport" directly before "court" or "courts" anywhere on the site: that phrase is a trademark. Use "multi-use court" or just "court".
+
+## Court designer (/designer)
+
+- Page body: `tools/content/designer_body.html` (wrapped with the header/footer by `tools/build_pages.py`).
+- App code: `public/js/designer.js`, styles: `public/css/designer.css`. All sizes are in feet.
+- Light coverage uses Dominator's published numbers: 100W solar about 40 x 50 ft per light, 150W wired about a 30 ft radius.
+- "Email me my design" posts to `/api/design` (in `src/worker.js`). It always sends the lead to `LEAD_WEBHOOK_URL`
+  (service "Court designer", with the design summary and a link that reopens it).
+- Emailing the picture needs these Worker settings (Cloudflare > Workers > ace-coatings-website > Settings > Variables and Secrets):
+  - `RESEND_API_KEY` (secret) from resend.com, with acecoatingsutah.com verified there.
+  - Optional: `EMAIL_FROM` (default `Ace Coatings <designs@acecoatingsutah.com>`), `DESIGN_NOTIFY_TO` (default `info@acecoatingsutah.com`).
+  Without `RESEND_API_KEY` the lead still arrives; the customer is told to download a copy.
