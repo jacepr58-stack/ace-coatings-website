@@ -43,7 +43,7 @@ const PRESETS = {
   pickle: ['Pickleball', 64, 34, s => { add('pickleball', { x: 32, y: 17 }, s) }],
   pickle2: ['Two pickleball', 60, 60, s => { add('pickleball', { x: 30, y: 15 }, s); add('pickleball', { x: 30, y: 45 }, s) }],
   half: ['Half court basketball', 40, 40, s => { addBasket({ x: 0, y: 20, rot: 0, pkg: 'middle', arc: 'hs' }, s, true) }],
-  combo: ['Pickleball + hoop', 60, 30, s => { add('pickleball', { x: 30, y: 15 }, s); addBasket({ x: 0, y: 15, rot: 0, pkg: 'basic', arc: 'backyard', line: 'ghost' }, s, true) }],
+  combo: ['Pickleball + hoop', 60, 30, s => { add('pickleball', { x: 30, y: 15 }, s); addBasket({ x: 0, y: 15, rot: 0, pkg: 'basic', arc: 'hs', line: 'ghost' }, s, true) }],
   full: ['Full court basketball', 94, 50, s => { addBasket({ x: 0, y: 25, rot: 0, pkg: 'top', arc: 'hs', ext: 'full', len: 94, key: '#1C2E5A' }, s, true) }],
   tennis: ['Tennis', 120, 60, s => { add('tennis', { x: 60, y: 30 }, s) }],
 };
@@ -58,6 +58,9 @@ function add(type, o = {}, s = S) {
     light: { heads: 2, power: 'wired' },
     fence: { h: 6, color: 'black', gates: [] },
     logo: { w: 12, rot: 0 },
+    foursquare: { line: '#FFFFFF', rot: 0 },
+    hopscotch: { line: '#FFFFFF', rot: 0 },
+    shuffle: { line: '#FFFFFF', rot: 0 },
   }[type];
   const it = Object.assign({ id: nid(), type, x: s.slab.l / 2, y: s.slab.w / 2 }, JSON.parse(JSON.stringify(base)), o);
   s.items.push(it);
@@ -132,6 +135,9 @@ function bbox(it) { // local bbox [x,y,w,h]
     case 'basket': { const R = ARC[it.arc][0]; const len = it.ext === 'full' ? it.len : Math.max(25.5, 5.25 + R + .5); return [-.5, -R - .5, len + 1, 2 * R + 1]; }
     case 'hoop': { const bw = BB[it.bb]; return [-1.2, -bw / 2 - .6, 6.8, bw + 1.2]; }
     case 'light': return [-2.6, -2.6, 5.2, 5.2];
+    case 'foursquare': return [-8.5, -8.5, 17, 17];
+    case 'hopscotch': return [-2.5, -8.5, 5, 17];
+    case 'shuffle': return [-26.5, -3.5, 53, 7];
     case 'logo': { const h = it.w / (it.ar || 1); return [-it.w / 2, -h / 2, it.w, h]; }
   }
 }
@@ -172,6 +178,23 @@ function linesSVG(it) {
   const g = (inner, w = .17) => `<g transform="${xf(it)}" fill="none" stroke="${st}" stroke-width="${w}" color="${st}" stroke-linecap="square">${inner}</g>`;
   if (it.type === 'pickleball') return g(`<rect x="-22" y="-10" width="44" height="20"/><path d="M-7 -10V10M7 -10V10M-22 0H-7M7 0H22"/>`);
   if (it.type === 'tennis') return g(`<rect x="-39" y="-18" width="78" height="36"/><path d="M-39 -13.5H39M-39 13.5H39M-21 -13.5V13.5M21 -13.5V13.5M-21 0H21M-39 0H-38.6M39 0H38.6"/>`);
+  const num = (x, y, t, fs = 1.1) => `<text x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" dominant-baseline="central" fill="${st}" stroke="none" font-family="system-ui,sans-serif" font-weight="700">${t}</text>`;
+  if (it.type === 'foursquare') return g(`<rect x="-8" y="-8" width="16" height="16"/><path d="M0 -8V8M-8 0H8"/>`); // 16 x 16 ft, four 8 ft squares
+  if (it.type === 'hopscotch') { // 2 ft boxes: 1, 2, 3, 4|5, 6, 7|8, 9, then the 10 half circle
+    const rows = [[1], [2], [3], [4, 5], [6], [7, 8], [9]]; let b = '', y = 8;
+    for (const r of rows) { y -= 2; r.forEach((n, k) => { const x = r.length === 1 ? -1 : -2 + 2 * k; b += `<rect x="${x}" y="${y}" width="2" height="2"/>` + num(x + 1, y + 1, n); }); }
+    b += `<path d="M-2 ${y}A2 2 0 0 1 2 ${y}"/>` + num(0, y - .8, 10, .9);
+    return g(b);
+  }
+  if (it.type === 'shuffle') { // 52 x 6 ft lane with a scoring triangle at each end
+    let b = `<rect x="-26" y="-3" width="52" height="6"/><path d="M-6.5 -3V3M6.5 -3V3"/>`;
+    for (const sg of [-1, 1]) {
+      const base = sg * 22.5, tip = sg * 12, mid = (a, t) => base + (tip - base) * t;
+      b += `<path d="M${base} -3L${tip} 0L${base} 3ZM${base} -3H${sg * 26}M${mid(0, .33)} ${-3 * .67}V${3 * .67}M${mid(0, .66)} ${-3 * .34}V${3 * .34}M${mid(0, .33)} 0H${base}"/>`;
+      b += num(mid(0, .8), 0, 10, .9) + num(mid(0, .5), 0, 8, .9) + num(mid(0, .17), -1.2, 7, .9) + num(mid(0, .17), 1.2, 7, .9) + num(sg * 24.2, 0, '10 OFF', .7);
+    }
+    return g(b);
+  }
   if (it.type === 'basket') {
     let s = basketEnd(it);
     if (it.ext === 'full') {
@@ -249,7 +272,7 @@ function render(keepPanel) {
   PPF = (svg.getBoundingClientRect().width || 800) / VB[2];
   const items = S.items;
   const by = t => items.filter(i => i.type === t);
-  const courts = items.filter(i => ['pickleball', 'tennis', 'basket'].includes(i.type));
+  const courts = items.filter(i => ['pickleball', 'tennis', 'basket', 'foursquare', 'hopscotch', 'shuffle'].includes(i.type));
   let s = `<defs>
     <pattern id="grass" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#6f9a57"/><path d="M0 0h3v6H0z" fill="#76a25d"/></pattern>
     <clipPath id="slabClip"><rect x="0" y="0" width="${l}" height="${w}"/></clipPath>
@@ -323,7 +346,7 @@ function swatches(key, val, opts = COLORS, allowNone = false) {
 }
 const seg = (key, val, opts) => `<div class="cd-seg" data-key="${key}">${opts.map(([v, t]) => `<button type="button" data-v="${v}" aria-pressed="${String(val) === String(v)}">${t}</button>`).join('')}</div>`;
 const row = (label, html) => `<div class="cd-row"><span class="cd-lbl">${label}</span>${html}</div>`;
-const NAMES = { pickleball: 'Pickleball court', tennis: 'Tennis court', basket: 'Basketball lines', hoop: 'Basketball hoop', light: 'Light pole', fence: 'Chain link fence', logo: 'Your logo' };
+const NAMES = { pickleball: 'Pickleball court', tennis: 'Tennis court', basket: 'Basketball lines', hoop: 'Basketball hoop', light: 'Light pole', fence: 'Chain link fence', logo: 'Your logo', foursquare: 'Four square', hopscotch: 'Hopscotch', shuffle: 'Shuffleboard' };
 
 function panel() {
   const box = $('#cd-insp'), it = S.items.find(i => i.id === sel);
@@ -341,12 +364,15 @@ function panel() {
     h += `<div class="cd-btns"><button type="button" class="cd-mini" data-act="rot">Rotate 90°</button></div>`;
   } else if (it.type === 'basket') {
     h += row('Line package', seg('pkg', it.pkg, [['basic', 'Basic'], ['middle', 'Middle'], ['top', 'Top']]) + `<small class="cd-note">${PKG[it.pkg]}</small>`);
-    h += row('3-point arc', seg('arc', it.arc, [['backyard', 'Backyard'], ['hs', 'High school'], ['college', 'College']]));
     h += row('Court', seg('ext', it.ext, [['half', 'Half court'], ['full', 'Full court']]));
     if (it.ext === 'full') h += row('Baseline to baseline', `<label class="cd-num"><input type="number" min="40" max="94" step="1" data-key="len" value="${it.len}"> ft</label>`);
     h += row('Line color', seg('line', it.line, BB_LINES) + `<small class="cd-note">Ghost lines are the court color a few shades lighter.</small>`);
     if (it.pkg !== 'basic') h += row('Paint the key', swatches('key', it.key, COLORS, true));
     h += `<div class="cd-btns"><button type="button" class="cd-mini" data-act="rot">Turn 90°</button><button type="button" class="cd-mini" data-act="hoopHere">Add a hoop here</button></div>`;
+  } else if (['foursquare', 'hopscotch', 'shuffle'].includes(it.type)) {
+    h += row('Line color', swatches('line', it.line, LINE_COLORS));
+    h += `<div class="cd-btns"><button type="button" class="cd-mini" data-act="rot">Rotate 90°</button></div>`;
+    h += `<p class="cd-hint">${{ foursquare: '16 x 16 ft with four 8 ft squares.', hopscotch: 'About 4 x 16 ft with 2 ft boxes.', shuffle: '52 x 6 ft lane with scoring triangles at both ends.' }[it.type]}</p>`;
   } else if (it.type === 'hoop') {
     h += row('Backboard', seg('bb', it.bb, [[54, '54"'], [60, '60"'], [72, '72"']]));
     h += `<p class="cd-hint">Hoops turn to face the court on their own. Put the pole on a baseline and the rim lands where the lines expect it.</p>`;
@@ -501,7 +527,7 @@ function confirmSoft(b) { // two-tap confirm instead of a browser dialog
 
 /* add buttons + the options new items start with */
 const ADD = { heads: 1, power: 'wired', h: 6 };
-$('#cd-add').addEventListener('click', e => {
+$('.cd-panel').addEventListener('click', e => {
   const b = e.target.closest('[data-add]'); if (!b) return;
   const { l, w } = S.slab; let it;
   switch (b.dataset.add) {
@@ -522,6 +548,8 @@ $('#cd-add').addEventListener('click', e => {
       break;
     }
     case 'logo': $('#cd-logofile').click(); return;
+    case 'foursquare': case 'hopscotch': it = add(b.dataset.add, { x: l / 2, y: w / 2 }); break;
+    case 'shuffle': it = add('shuffle', { x: l / 2, y: w / 2, rot: l >= w ? 0 : 90 }); break;
   }
   sel = it.id; render(); commit();
   if (matchMedia('(max-width: 900px)').matches) $('#cd-stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -675,7 +703,8 @@ function summary() {
   for (const i of it) {
     n[i.type] = (n[i.type] || 0) + 1; const k = `${NAMES[i.type]} ${n[i.type]}`;
     if (i.type === 'pickleball' || i.type === 'tennis') out.push(`${k}: ${i.fill ? `court ${colorName(i.color)}${i.type === 'pickleball' ? `, kitchen ${i.kitchen === 'border' ? 'same as border' : i.kitchen === 'court' ? 'same as court' : colorName(i.kitchen)}` : ''}` : 'lines only'}, lines ${colorName(i.line)}${i.net ? ', net' : ''}`);
-    if (i.type === 'basket') out.push(`${k}: ${i.ext === 'full' ? `full court (${i.len} ft)` : 'half court'}, ${i.pkg} package, ${ARC[i.arc][1]}, lines ${colorName(i.line)}${i.key && i.pkg !== 'basic' ? `, key painted ${colorName(i.key)}` : ''}`);
+    if (i.type === 'basket') out.push(`${k}: ${i.ext === 'full' ? `full court (${i.len} ft)` : 'half court'}, ${i.pkg} package, high school lines, lines ${colorName(i.line)}${i.key && i.pkg !== 'basic' ? `, key painted ${colorName(i.key)}` : ''}`);
+    if (['foursquare', 'hopscotch', 'shuffle'].includes(i.type)) out.push(`${k}: lines ${colorName(i.line)}`);
     if (i.type === 'hoop') out.push(`${k}: ${i.bb}" backboard`);
     if (i.type === 'light') out.push(`${k}: 16 ft pole, ${i.heads} x ${LIGHT[i.power].label}`);
   }
@@ -748,7 +777,7 @@ function boot() {
     for (const i of S.items) { const n = +String(i.id).slice(1); if (n >= uid) uid = n + 1; }
   } else { S = blank(); PRESETS.combo[3](S); }
   S.night = false;
-  for (const i of S.items) { if (i.type === 'fence' && !FENCE_COLORS[i.color]) i.color = 'black'; if (i.type === 'basket' && !BB_LINES.some(o => o[0] === i.line)) i.line = '#FFFFFF'; }
+  for (const i of S.items) { if (i.type === 'basket') i.arc = 'hs'; if (i.type === 'fence' && !FENCE_COLORS[i.color]) i.color = 'black'; if (i.type === 'basket' && !BB_LINES.some(o => o[0] === i.line)) i.line = '#FFFFFF'; }
   Promise.all(S.items.filter(i => i.type === 'logo' && i.erase).map(processLogo)).then(() => render());
   syncSlab(); render(); snap = JSON.stringify(S);
 }
