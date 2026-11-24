@@ -21,14 +21,15 @@ const FENCE_COLORS = { black: ['Black vinyl', '#1b1f24'], galv: ['Galvanized', '
 
 /* ---------- geometry constants ---------- */
 const ARC = { backyard: [17, 'Backyard (17 ft arc)'], hs: [19.75, 'High school (19 ft 9 in arc)'], college: [22.146, 'College (22 ft 1.75 in arc)'] };
-const PKG = { basic: 'Basic: 3-point and free throw line', middle: 'Middle: adds the full key', top: 'Top: adds free throw lane markers' };
+const PKG = { basic: 'Basic: 3-point line and free throw line only', middle: 'Middle: adds the key (lane lines and the top of the free throw circle)', top: 'Top: the key plus the half court line and free throw lane markers' };
 const BB = { 54: 4.5, 60: 5, 72: 6 };
 // Light pools per fixture, from Dominator's published coverage:
 // 100W solar "covers a 40 x 50 foot area"; 150W wired planner shows a ~30 ft useful radius.
 const LIGHT = {
-  wired: { label: '150W wired LED', depth: 26, width: 30, off: 20 },
-  solar: { label: '100W solar LED', depth: 20, width: 25, off: 16 } };
-const SPREAD = { 1: [0], 2: [-40, 40], 3: [-62, 0, 62] };
+  // Pool sizes chosen so each fixture's area matches Dominator: solar ~40x50 = 2,000 sq ft, wired ~30 ft radius = ~2,800 sq ft.
+  wired: { label: '150W wired LED', depth: 28, width: 32, off: 22, sqft: 2800 },
+  solar: { label: '100W solar LED', depth: 22.5, width: 28, off: 18, sqft: 2000 } };
+const SPREAD = { 1: [0], 2: [-30, 30], 3: [-50, 0, 50] };
 const M = 12; // margin around slab shown in the view (ft)
 
 /* ---------- state ---------- */
@@ -84,7 +85,7 @@ function hoopFacing(h) { // inward: perpendicular to the nearest slab edge
   d.sort((a, b) => a[0] - b[0]);
   return d[0][1];
 }
-function lightAim(li) { return Math.atan2(S.slab.w / 2 - li.y, S.slab.l / 2 - li.x) * 180 / Math.PI; }
+function lightAim(li) { return hoopFacing(li); } // straight into the court from the nearest edge, never diagonal
 
 function pools() { // every light head's pool, in world coords
   const out = [];
@@ -133,23 +134,22 @@ function fillSVG(it) {
   if (it.type === 'pickleball' && it.fill) return `<g transform="${xf(it)}"><rect x="-22" y="-10" width="44" height="20" fill="${it.color}"/><rect x="-7" y="-10" width="14" height="20" fill="${it.kitchen}"/></g>`;
   if (it.type === 'tennis' && it.fill) return `<g transform="${xf(it)}"><rect x="-39" y="-18" width="78" height="36" fill="${it.color}"/></g>`;
   if (it.type === 'basket' && it.key && it.pkg !== 'basic') {
-    const k = x0 => `<rect x="${x0}" y="-6" width="19" height="12" fill="${it.key}"/>`;
-    return `<g transform="${xf(it)}">${k(0)}${it.ext === 'full' ? k(it.len - 19) : ''}</g>`;
+    const k = `<path d="M0 -6H19A6 6 0 0 1 19 6H0Z" fill="${it.key}"/>`; // lane + top half of the free throw circle, like our real courts
+    return `<g transform="${xf(it)}">${k}${it.ext === 'full' ? `<g transform="translate(${it.len} 0) scale(-1 1)">${k}</g>` : ''}</g>`;
   }
   return '';
 }
 function basketEnd(it) { // one end, local coords, baseline at x=0, court toward +x
   const R = ARC[it.arc][0], bx = 5.25;
   let d = `M0 ${-R}H${bx}A${R} ${R} 0 0 1 ${bx} ${R}H0`; // 3-point line
-  d += `M19 -6V6`; // free throw line
-  if (it.pkg !== 'basic') d += `M0 -6H19M0 6H19M19 -6A6 6 0 0 1 19 6`; // lane + outer half of circle
+  d += it.pkg === 'basic' ? `M19 -3V3` : `M19 -6V6`; // free throw line: short 6 ft line on its own (like our ghost-line courts), full width with a key
+  if (it.pkg !== 'basic') d += `M0 -6H19M0 6H19M19 -6A6 6 0 0 1 19 6`; // lane + top half of the circle (no dashed bottom half)
   let extra = '';
-  if (it.pkg !== 'basic') extra += `<path d="M19 -6A6 6 0 0 0 19 6" stroke-dasharray="1 1"/>`;
   if (it.pkg === 'top') { // lane blocks + hash marks along both lane lines
     let hd = '';
     for (const sg of [-1, 1]) {
-      extra += `<rect x="7" y="${sg < 0 ? -6.67 : 6}" width="1" height=".67" stroke="none" fill="currentColor"/>`;
-      for (const x of [11, 14, 17]) hd += `M${x} ${sg * 6}V${sg * 6.6}`;
+      hd += `M7 ${sg * 6}V${sg * 6.67}H8V${sg * 6}`; // open box at the block, like our Pleasant Grove court
+      for (const x of [11, 14, 17]) hd += `M${x} ${sg * 6}V${sg * 6.67}`;
     }
     extra += `<path d="${hd}"/>`;
   }
@@ -166,6 +166,11 @@ function linesSVG(it) {
       s += `<g transform="translate(${it.len} 0) scale(-1 1)">${basketEnd(it)}</g>`;
       const h = it.len / 2;
       s += `<path d="M${h} -40V40"/><circle cx="${h}" cy="0" r="6"/>`;
+    } else if (it.pkg === 'top') { // half court line at 47 ft, or the far edge of a shorter slab
+      const [ux, uy] = dir(it.rot);
+      const span = ux ? (ux > 0 ? S.slab.l - it.x : it.x) : (uy > 0 ? S.slab.w - it.y : it.y);
+      const h = Math.min(47, span - .5);
+      if (h > 25) s += `<path d="M${h} -40V40M${h} -6A6 6 0 0 0 ${h} 6"/>`;
     }
     return g(s);
   }
@@ -251,14 +256,16 @@ function render(keepPanel) {
     ${by('logo').map(logoSVG).join('')}
     ${courts.map(linesSVG).join('')}
   </g>
-  ${courts.map(netSVG).join('')}
+  <g class="x3d">${courts.map(netSVG).join('')}
   ${by('fence').map(fenceSVG).join('')}
   ${by('hoop').map(hoopSVG).join('')}
-  ${by('light').map(lightSVG).join('')}`;
+  ${by('light').map(lightSVG).join('')}</g>`;
   if (S.night) {
+    s += `<g class="x3d">`;
     s += `<rect x="${VB[0]}" y="${VB[1]}" width="${VB[2]}" height="${VB[3]}" fill="#060b18" opacity=".82" mask="url(#nightMask)" pointer-events="none"/>`;
     s += pools().map(p => `<ellipse cx="${p.cx}" cy="${p.cy}" rx="${p.rx}" ry="${p.ry}" transform="rotate(${p.deg} ${p.cx} ${p.cy})" fill="url(#poolGlow)" pointer-events="none"/>`).join('');
     s += by('light').map(lightSVG).join('');
+    s += `</g>`;
   }
   // dimensions
   const dim = `font-size="${13 / PPF}" font-family="system-ui,sans-serif" font-weight="700" fill="#fff" stroke="rgba(0,0,0,.5)" stroke-width=".35" paint-order="stroke" text-anchor="middle"`;
@@ -287,6 +294,7 @@ function render(keepPanel) {
   $('#cd-night').setAttribute('aria-pressed', S.night); $('#cd-night span').textContent = S.night ? 'Turn lights off' : 'Turn lights on';
   $('#cd-stage').classList.toggle('night', S.night);
   if (!keepPanel) panel(); list(); save();
+  if (window.CD3 && window.CD3.active) window.CD3.update();
 }
 
 /* ---------- panel ---------- */
@@ -326,7 +334,8 @@ function panel() {
   } else if (it.type === 'light') {
     h += row('Fixtures on the pole', seg('heads', it.heads, it.power === 'solar' ? [[1, 'Single'], [2, 'Double']] : [[1, 'Single'], [2, 'Double'], [3, 'Triple']]));
     h += row('Power', seg('power', it.power, [['wired', '150W wired'], ['solar', '100W solar']]));
-    h += `<p class="cd-hint">16 ft Dominator pole. ${it.power === 'solar' ? 'Each solar light covers about 40 x 50 ft. Solar comes in single or double.' : 'Each 150W light reaches about 30 ft.'} Tap "Turn lights on" to see coverage.</p>`;
+    const P = LIGHT[it.power];
+    h += `<p class="cd-hint"><b>This pole lights about ${(P.sqft * it.heads).toLocaleString()} sq ft</b> (${it.heads} x ${P.sqft.toLocaleString()} sq ft). 16 ft Dominator pole. ${it.power === 'solar' ? 'Each solar light covers about 40 x 50 ft. Solar comes in single or double.' : 'Each 150W light reaches about 30 ft.'} Lights aim straight into the court from the closest edge. Tap "Turn lights on" to see coverage.</p>`;
   } else if (it.type === 'fence') {
     h += row('Height', seg('h', it.h, [[4, '4 ft'], [6, '6 ft'], [8, '8 ft']]));
     h += row('Color', seg('color', it.color, Object.entries(FENCE_COLORS).map(([k, v]) => [k, v[0]])));
@@ -431,7 +440,19 @@ function confirmSoft(b) { // two-tap confirm instead of a browser dialog
   return false;
 }
 
-/* add buttons */
+/* add buttons + the options new items start with */
+const ADD = { heads: 1, power: 'wired', h: 6 };
+function syncAddOpts() {
+  $('#cd-addopts').innerHTML = row('New light poles', seg('heads', ADD.heads, ADD.power === 'solar' ? [[1, 'Single'], [2, 'Double']] : [[1, 'Single'], [2, 'Double'], [3, 'Triple']]) + seg('power', ADD.power, [['wired', '150W wired'], ['solar', '100W solar']]) + `<small class="cd-note">Each ${LIGHT[ADD.power].label} lights about ${LIGHT[ADD.power].sqft.toLocaleString()} sq ft, so a ${['', 'single', 'double', 'triple'][ADD.heads]} pole covers about ${(LIGHT[ADD.power].sqft * ADD.heads).toLocaleString()} sq ft.</small>`)
+    + row('New fence height', seg('h', ADD.h, [[4, '4 ft'], [6, '6 ft'], [8, '8 ft']]));
+}
+$('#cd-addopts').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]'), g = b && b.closest('[data-key]'); if (!g) return;
+  const k = g.dataset.key; ADD[k] = k === 'power' ? b.dataset.v : +b.dataset.v;
+  if (ADD.power === 'solar' && ADD.heads > 2) ADD.heads = 2;
+  syncAddOpts();
+});
+syncAddOpts();
 $('#cd-add').addEventListener('click', e => {
   const b = e.target.closest('[data-add]'); if (!b) return;
   const { l, w } = S.slab; let it;
@@ -440,11 +461,11 @@ $('#cd-add').addEventListener('click', e => {
     case 'tennis': it = add('tennis', { x: l / 2, y: w / 2, rot: l >= w ? 0 : 90 }); break;
     case 'basket': it = addBasket(l >= w ? { x: 0, y: w / 2, rot: 0 } : { x: w / 2, y: 0, rot: 90 }); break;
     case 'hoop': it = add('hoop', { x: 0, y: w / 2 }); break;
-    case 'light': it = add('light', { x: l / 2, y: -2 }); break;
-    case 'fence': it = add('fence', { x: 0, y: w + 0, x2: Math.min(30, l), y2: w }); break;
+    case 'light': it = add('light', { x: l / 2, y: -2, heads: ADD.heads, power: ADD.power }); break;
+    case 'fence': it = add('fence', { x: 0, y: w + 0, x2: Math.min(30, l), y2: w, h: ADD.h }); break;
     case 'fenceall': {
       const pts = [[0, 0], [l, 0], [l, w], [0, w]];
-      pts.forEach((p, k) => { const q = pts[(k + 1) % 4]; it = add('fence', { x: p[0], y: p[1], x2: q[0], y2: q[1] }); });
+      pts.forEach((p, k) => { const q = pts[(k + 1) % 4]; it = add('fence', { x: p[0], y: p[1], x2: q[0], y2: q[1], h: ADD.h }); });
       it.gates.push({ t: r2(w / 2 - 2), w: 4 });
       break;
     }
@@ -666,6 +687,30 @@ function boot() {
   Promise.all(S.items.filter(i => i.type === 'logo' && i.erase).map(processLogo)).then(() => render());
   syncSlab(); render(); snap = JSON.stringify(S);
 }
+// hooks for the 3D view (designer3d.js)
+async function flatTexture(ppf = 24) { // the slab paint only, as a canvas
+  const { l, w } = S.slab;
+  const clone = svg.cloneNode(true); clone.setAttribute('xmlns', NS);
+  clone.querySelectorAll('.cd-hits,.x3d,.cd-dim').forEach(n => n.remove());
+  const k = Math.min(ppf, 4096 / Math.max(l, w));
+  clone.setAttribute('viewBox', `0 0 ${l} ${w}`); clone.setAttribute('width', Math.round(l * k)); clone.setAttribute('height', Math.round(w * k));
+  const img = await loadImg('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(clone)));
+  const c = document.createElement('canvas'); c.width = Math.round(l * k); c.height = Math.round(w * k);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return c;
+}
+window.CD = { get S() { return S; }, flatTexture, hoopFacing, lightAim, fenceLen, pools, SPREAD, LIGHT, BB, FENCE_COLORS };
+let view3d = false;
+$('#cd-3d').onclick = async () => {
+  view3d = !view3d; const b = $('#cd-3d');
+  b.setAttribute('aria-pressed', view3d); b.querySelector('span').textContent = view3d ? 'Back to 2D' : '3D view';
+  $('#cd-stage').classList.toggle('is3d', view3d); $('#cd-views').hidden = !view3d;
+  if (view3d) {
+    if (!window.CD3) { b.disabled = true; try { await import('/js/designer3d.js'); } catch (e) { toast('3D view could not load on this device.'); view3d = false; $('#cd-stage').classList.remove('is3d'); } b.disabled = false; }
+    if (view3d) window.CD3.open($('#cd-3dbox'));
+  } else if (window.CD3) window.CD3.close();
+};
+$('#cd-views').addEventListener('click', e => { const b = e.target.closest('[data-view]'); if (b && window.CD3) window.CD3.view(b.dataset.view); });
 boot();
 let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => render(true), 150); });
 })();

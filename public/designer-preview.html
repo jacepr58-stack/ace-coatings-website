@@ -38,10 +38,13 @@
   <div class="cd-stagewrap">
     <div class="cd-stage" id="cd-stage">
       <svg id="cd-svg" role="img" aria-label="Your court design. Drag items to move them."></svg>
+      <div class="cd-3dbox" id="cd-3dbox" aria-label="3D view of your court. Drag to look around."></div>
+      <div class="cd-views" id="cd-views" hidden><button type="button" class="cd-tool" data-view="orbit">Corner</button><button type="button" class="cd-tool" data-view="side">Side</button><button type="button" class="cd-tool" data-view="court">On the court</button><button type="button" class="cd-tool" data-view="top">Overhead</button></div>
       <div class="cd-bar">
         <button type="button" class="cd-tool" id="cd-night" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg><span>Lights on</span></button>
         <span class="cd-lit" id="cd-lit" aria-live="polite"></span>
         <span class="cd-sp"></span>
+        <button type="button" class="cd-tool" id="cd-3d" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg><span>3D view</span></button>
         <button type="button" class="cd-tool" id="cd-undo" title="Undo (Ctrl+Z)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span>Undo</span></button>
       </div>
     </div>
@@ -88,6 +91,7 @@
         <button type="button" data-add="fenceall">+ Fence all around</button>
         <button type="button" data-add="logo">+ Upload logo</button>
       </div>
+      <div class="cd-addopts" id="cd-addopts"></div>
       <input type="file" id="cd-logofile" accept="image/*" hidden>
     </details>
     <div class="cd-card cd-inspcard"><div id="cd-insp"></div></div>
