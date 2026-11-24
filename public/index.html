@@ -356,7 +356,7 @@ footer{background:#0B1729;color:#A9B8CE;padding-block:48px 110px;font-size:.92re
   <div class="wrap">
     <a class="brand" href="#top"><img src="/img/logo-icon-white.png" alt="">ACE COATINGS<small>UTAH</small></a>
     <nav class="nav" id="nav">
-      <a href="#services">Services</a><a href="#design">Design your court</a><a href="#process">How we build</a><a href="#work">Our work</a><a href="#reviews">Reviews</a>
+      <a href="#services">Services</a><a href="/designer">Design your court</a><a href="#process">How we build</a><a href="#work">Our work</a><a href="#reviews">Reviews</a>
     </nav>
     <span class="phone">385-269-0060</span>
     <a class="btn btn-blue" href="#estimate">Free estimate</a>
@@ -381,7 +381,7 @@ footer{background:#0B1729;color:#A9B8CE;padding-block:48px 110px;font-size:.92re
       <p>New court construction, resurfacing, and coating for backyards, schools, churches, and HOAs across Utah. Based in Spanish Fork.</p>
       <div class="hero-ctas">
         <a class="btn btn-blue" href="#estimate">Get a free estimate</a>
-        <a class="btn btn-ghost" href="#design">Design your court</a>
+        <a class="btn btn-ghost" href="/designer">Design your court</a>
       </div>
       <div class="coat-pick">
         <div class="lbl"><span>Pick a coating, watch it go down</span><span>Color: <b id="coatName">Ace Blue</b></span></div>
@@ -429,62 +429,6 @@ footer{background:#0B1729;color:#A9B8CE;padding-block:48px 110px;font-size:.92re
       <button class="svc" data-svc="sig" aria-expanded="false"><img src="/img/air-14.jpg" alt="Overhead view of a purple pickleball court with blue border"><div class="svc-body"><span class="tag">One of a kind</span><h3>Signature Courts</h3><p>Custom artwork, logos, mascots, and colors designed around your property.</p><span class="more">See what's included +</span></div></button>
     </div>
     <div class="svc-detail" id="svcDetail" hidden></div>
-  </div>
-</section>
-
-<!-- DESIGNER -->
-<section class="sec design" id="design">
-  <div class="wrap">
-    <div class="sec-head">
-      <span class="eyebrow">Court designer</span>
-      <h2>Design your court. We'll pour it.</h2>
-      <p class="lede">Pick a part of the court, then pick a color and watch it get poured. When you like it, send it with your estimate request.</p>
-    </div>
-    <div class="designer">
-      <div class="court-stage" id="stage">
-        <svg id="court" viewBox="0 0 600 300" role="img" aria-label="Court preview">
-          <defs>
-            <clipPath id="clip-border"><circle cx="0" cy="0" r="0"/></clipPath>
-            <clipPath id="clip-court"><circle cx="0" cy="0" r="0"/></clipPath>
-            <clipPath id="clip-kitchen"><circle cx="0" cy="0" r="0"/></clipPath>
-            <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .09 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
-          </defs>
-          <rect id="z-border" x="0" y="0" width="600" height="300"/>
-          <rect id="o-border" x="0" y="0" width="600" height="300" clip-path="url(#clip-border)"/>
-          <rect id="z-court" x="80" y="50" width="440" height="200"/>
-          <rect id="o-court" x="80" y="50" width="440" height="200" clip-path="url(#clip-court)"/>
-          <g id="z-kitchen"><rect x="230" y="50" width="70" height="200"/><rect x="300" y="50" width="70" height="200"/></g>
-          <g id="o-kitchen" clip-path="url(#clip-kitchen)"><rect x="230" y="50" width="70" height="200"/><rect x="300" y="50" width="70" height="200"/></g>
-          <rect x="0" y="0" width="600" height="300" filter="url(#grain)" fill="#fff" pointer-events="none"/>
-          <g id="hoopLines" fill="none" stroke="#12243F" stroke-width="3" display="none">
-            <rect x="0" y="105" width="140" height="90"/>
-            <path d="M140 105 a45 45 0 0 1 0 90"/>
-            <path d="M0 22 H40 A158 158 0 0 1 40 278 H0"/>
-            <circle cx="16" cy="150" r="7" stroke="#E2572B"/>
-          </g>
-          <g fill="none" stroke="#fff" stroke-width="3">
-            <rect x="80" y="50" width="440" height="200"/>
-            <path d="M230 50V250M370 50V250M80 150H230M370 150H520"/>
-          </g>
-          <path d="M300 40V260" stroke="#0B1729" stroke-width="4" stroke-dasharray="3 3"/>
-          <circle cx="300" cy="40" r="5" fill="#0B1729"/><circle cx="300" cy="260" r="5" fill="#0B1729"/>
-        </svg>
-        <svg class="mini-bucket" id="mb" viewBox="0 0 120 130" aria-hidden="true"><path d="M22 18 Q60 -14 98 18" fill="none" stroke="#C7CCD3" stroke-width="6"/><path d="M14 26h92l-10 96H24z" fill="#F4F6F9"/><path id="mbPaint" d="M18 34h84" stroke="#387FE5" stroke-width="12"/><image href="/img/logo-icon.png" x="35" y="50" width="50" height="50" preserveAspectRatio="xMidYMid meet"/></svg>
-      </div>
-      <div class="panel">
-        <div class="zones" id="zones" role="group" aria-label="Part of the court">
-          <button aria-pressed="true" data-z="court">Court</button><button aria-pressed="false" data-z="kitchen">Kitchen</button><button aria-pressed="false" data-z="border">Border</button>
-        </div>
-        <div class="pick-name" id="pickName">Court: <b>Ace Blue</b></div>
-        <div class="palette" id="palette" aria-label="Colors"></div>
-        <div class="toggles">
-          <button class="chip" id="hoopBtn" aria-pressed="false">Add basketball lines</button>
-          <button class="chip" id="randBtn" aria-pressed="false">Surprise me</button>
-        </div>
-        <div class="recipe" id="recipe"></div>
-        <a class="btn btn-blue" href="#estimate" id="useDesign">Get an estimate with this design</a>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -649,7 +593,7 @@ footer{background:#0B1729;color:#A9B8CE;padding-block:48px 110px;font-size:.92re
     <div class="copy">© 2026 Ace Coatings. All rights reserved. · <a href="/privacy" style="text-decoration:none">Privacy policy</a></div>
   </div>
 </footer>
-<div class="mcta"><a class="btn btn-ghost" href="#design">Design it</a><a class="btn btn-blue" href="#estimate">Free estimate</a></div>
+<div class="mcta"><a class="btn btn-ghost" href="/designer">Design it</a><a class="btn btn-blue" href="#estimate">Free estimate</a></div>
 
 <script>
 (()=>{
@@ -775,40 +719,7 @@ $$('.svc').forEach(b=>b.onclick=()=>{const k=b.dataset.svc,open=b.getAttribute('
   det.hidden=false;det.querySelector('[data-pre]').onclick=()=>preSvc(k);det.scrollIntoView({behavior:RM?'auto':'smooth',block:'nearest'})});
 function preSvc(k){const m={build:'s1',resurf:'s2',coat:'s3',sig:'s4'};$('#'+m[k]).checked=true}
 
-/* ---------- DESIGNER ---------- */
-const design={court:'Ace Blue',kitchen:'Light Blue',border:'Gray'};let zone='court',hoops=false;
-const geom={border:[300,150,340],court:[300,150,260],kitchen:[300,150,130]};
-function paintZone(z,name,instant){
-  const col=byName(name)[1],base=$('#z-'+z),over=$('#o-'+z),clip=$(`#clip-${z} circle`);
-  const set=(el,c)=>{el.setAttribute('fill',c);el.querySelectorAll&&el.querySelectorAll('rect').forEach(r=>r.setAttribute('fill',c))};
-  if(instant||RM){set(base,col);return}
-  set(over,col);
-  const [cx,cy,R]=geom[z];const px=z==='court'?160:z==='border'?40:300,py=z==='border'?150:150;
-  clip.setAttribute('cx',px);clip.setAttribute('cy',py);clip.setAttribute('r',0);
-  // bucket over the pour point
-  const st=$('#stage'),svg=$('#court'),sr=svg.getBoundingClientRect(),pr=st.getBoundingClientRect(),sc=sr.width/600,mb=$('#mb');
-  $('#mbPaint').setAttribute('stroke',col);
-  mb.style.left=(sr.left-pr.left+px*sc-6)+'px';mb.style.top=(sr.top-pr.top+py*sc-70)+'px';
-  mb.classList.remove('tip');void mb.offsetWidth;mb.classList.add('tip');
-  const t0=performance.now()+420,dur=900,maxR=Math.hypot(600,300);
-  const f=t=>{const k=Math.max(0,Math.min(1,(t-t0)/dur));clip.setAttribute('r',maxR*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(f);else{set(base,col);clip.setAttribute('r',0)}};
-  requestAnimationFrame(f);
-}
-const pal=$('#palette');
-COLORS.forEach(([n,c])=>{const b=document.createElement('button');b.style.setProperty('--c',c);b.title=n;b.setAttribute('aria-label',n);b.dataset.n=n;b.onclick=()=>{design[zone]=n;paintZone(zone,n);syncPanel()};pal.appendChild(b)});
-$$('#zones button').forEach(b=>b.onclick=()=>{zone=b.dataset.z;$$('#zones button').forEach(x=>x.setAttribute('aria-pressed',x===b));syncPanel()});
-$('#hoopBtn').onclick=e=>{hoops=!hoops;e.currentTarget.setAttribute('aria-pressed',hoops);$("#hoopLines").setAttribute("display",hoops?"inline":"none");syncPanel()};
-$('#randBtn').onclick=()=>{const pick=()=>COLORS[Math.floor(Math.random()*COLORS.length)][0];let i=0;for(const z of ['border','court','kitchen']){let n=pick();while(n===design[z])n=pick();design[z]=n;setTimeout(()=>paintZone(z,n),i++*500)}syncPanel()};
-function syncPanel(){
-  $$('#palette button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.n===design[zone]));
-  $('#pickName').innerHTML=`${zone[0].toUpperCase()+zone.slice(1)}: <b>${design[zone]}</b>`;
-  const sw=n=>`<i style="background:${byName(n)[1]}"></i>${n}`;
-  $('#recipe').innerHTML=`Court ${sw(design.court)}<br>Kitchen ${sw(design.kitchen)}<br>Border ${sw(design.border)}<br>Lines: pickleball${hoops?' + basketball':''}`;
-}
-for(const z in design)paintZone(z,design[z],true);syncPanel();
-let useDesign=false;
-$('#useDesign').onclick=()=>{useDesign=true;const a=$('#attached');a.hidden=false;a.textContent=`Design attached: ${design.court} court, ${design.kitchen} kitchen, ${design.border} border${hoops?', basketball lines':''}`};
-
+let useDesign=false; // the court designer lives on /designer now
 /* ---------- ADD-ONS ---------- */
 const AO=[
  {k:'hoop',id:'hoop-glass',t:'In-ground hoop, glass backboard',img:'hoop-glass',p:'Tempered glass for a true rebound, a rust-proof aluminum pole, and height you can adjust for any age.',l:['54", 60", or 72" backboard','Smaller overhangs fit tight yards','Brushed aluminum or black']},
