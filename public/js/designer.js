@@ -308,7 +308,7 @@ function render(keepPanel) {
   tb.hidden = !cur;
   if (cur) { const edge = ['hoop', 'light', 'basket'].includes(cur.type); tb.querySelector('[data-c=xy]').textContent = edge ? 'Center on its edge' : 'Center'; tb.querySelectorAll('[data-c=x],[data-c=y]').forEach(b => b.hidden = edge); tb.querySelector('.cd-ontool-name').textContent = NAMES[cur.type];
     $('#cd-onopts').innerHTML = cur.type === 'light' ? seg('heads', cur.heads, cur.power === 'solar' ? [[1, 'Single'], [2, 'Double']] : [[1, 'Single'], [2, 'Double'], [3, 'Triple']]) : cur.type === 'fence' ? seg('h', cur.h, [[4, '4 ft'], [6, '6 ft'], [8, '8 ft']]) : ''; }
-  if (!keepPanel) panel(); list(); save();
+  if (!keepPanel) { panel(); syncColors(); } list(); save();
   if (window.CD3 && window.CD3.active) window.CD3.update();
 }
 
@@ -450,15 +450,37 @@ $('#cd-ontool').addEventListener('click', e => {
 /* slab */
 function syncSlab() {
   $('#cd-L').value = S.slab.l; $('#cd-W').value = S.slab.w;
-  $('#cd-slabsw').innerHTML = swatches('slab', S.slab.color);
 }
 $('#cd-slabform').addEventListener('change', () => {
   S.slab.l = clamp(Math.round(+$('#cd-L').value || 60), 10, 200); S.slab.w = clamp(Math.round(+$('#cd-W').value || 30), 10, 200);
   syncSlab(); render(); commit();
 });
-$('#cd-slabsw').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if (!b) return; S.slab.color = b.dataset.v; syncSlab(); render(); commit(); });
-$('#cd-slabsw').addEventListener('input', e => { if (e.target.type === 'color') { S.slab.color = e.target.value; render(); } });
-$('#cd-slabsw').addEventListener('change', e => { if (e.target.type === 'color') { syncSlab(); commit(); } });
+/* court colors: border, play area, kitchen (applies to every painted court) */
+function syncColors() {
+  const courts = S.items.filter(i => (i.type === 'pickleball' || i.type === 'tennis') && i.fill), pb = courts.find(i => i.type === 'pickleball');
+  let h = row('Border', swatches('border', S.slab.color));
+  if (courts.length) {
+    h += row('Play area', swatches('play', courts[0].color));
+    if (pb) {
+      const k = pb.kitchen, std = ['border', 'court'].includes(k);
+      h += row('Kitchen', `<div class="cd-seg" data-key="kitchen"><button type="button" data-v="border" aria-pressed="${k === 'border'}">Same as border</button><button type="button" data-v="court" aria-pressed="${k === 'court'}">Same as play area</button></div><details class="cd-more"${std ? '' : ' open'}><summary>Pick a 3rd color (adds cost)</summary>${swatches('kitchen', std ? '' : k)}</details>`);
+    }
+  } else h += `<p class="cd-hint">Add pickleball or tennis lines to pick the play area and kitchen colors.</p>`;
+  $('#cd-colorsbox').innerHTML = h;
+}
+function setColor(key, v) {
+  if (key === 'border') S.slab.color = v;
+  for (const i of S.items) {
+    if (key === 'play' && (i.type === 'pickleball' || i.type === 'tennis') && i.fill) i.color = v;
+    if (key === 'kitchen' && i.type === 'pickleball') i.kitchen = v;
+  }
+}
+$('#cd-colorsbox').addEventListener('click', e => {
+  const b = e.target.closest('button[data-v]'), g = b && b.closest('[data-key]'); if (!g) return;
+  setColor(g.dataset.key, b.dataset.v); render(); commit();
+});
+$('#cd-colorsbox').addEventListener('input', e => { if (e.target.type === 'color') { setColor(e.target.dataset.key, e.target.value); render(true); } });
+$('#cd-colorsbox').addEventListener('change', e => { if (e.target.type === 'color') { render(); commit(); } });
 $('#cd-presets').innerHTML = Object.entries(PRESETS).map(([k, p]) => `<button type="button" class="cd-chip" data-p="${k}">${p[0]}<small>${p[1]} x ${p[2]}</small></button>`).join('');
 $('#cd-presets').addEventListener('click', e => {
   const b = e.target.closest('[data-p]'); if (!b) return;
