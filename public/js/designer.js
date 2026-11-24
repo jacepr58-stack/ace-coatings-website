@@ -17,6 +17,7 @@ const colorName = c => {
   const f = [...LINE_COLORS, ...COLORS].find(x => x[1].toLowerCase() === String(c).toLowerCase());
   return f ? f[0] : 'Custom ' + c;
 };
+const BB_LINES = [['#FFFFFF', 'White'], ['ghost', 'Ghost'], ['#111418', 'Black']]; // basketball line colors we offer
 const FENCE_COLORS = { black: ['Black vinyl', '#1b1f24'], galv: ['Galvanized steel', '#9aa3ab'] };
 
 /* ---------- geometry constants ---------- */
@@ -340,7 +341,7 @@ function panel() {
     h += row('3-point arc', seg('arc', it.arc, [['backyard', 'Backyard'], ['hs', 'High school'], ['college', 'College']]));
     h += row('Court', seg('ext', it.ext, [['half', 'Half court'], ['full', 'Full court']]));
     if (it.ext === 'full') h += row('Baseline to baseline', `<label class="cd-num"><input type="number" min="40" max="94" step="1" data-key="len" value="${it.len}"> ft</label>`);
-    h += row('Line color', swatches('line', it.line, LINE_COLORS));
+    h += row('Line color', seg('line', it.line, BB_LINES) + `<small class="cd-note">Ghost lines are the court color a few shades lighter.</small>`);
     if (it.pkg !== 'basic') h += row('Paint the key', swatches('key', it.key, COLORS, true));
     h += `<div class="cd-btns"><button type="button" class="cd-mini" data-act="rot">Turn 90°</button><button type="button" class="cd-mini" data-act="hoopHere">Add a hoop here</button></div>`;
   } else if (it.type === 'hoop') {
@@ -732,7 +733,7 @@ function boot() {
     for (const i of S.items) { const n = +String(i.id).slice(1); if (n >= uid) uid = n + 1; }
   } else { S = blank(); PRESETS.combo[3](S); }
   S.night = false;
-  for (const i of S.items) if (i.type === 'fence' && !FENCE_COLORS[i.color]) i.color = 'black';
+  for (const i of S.items) { if (i.type === 'fence' && !FENCE_COLORS[i.color]) i.color = 'black'; if (i.type === 'basket' && !BB_LINES.some(o => o[0] === i.line)) i.line = '#FFFFFF'; }
   Promise.all(S.items.filter(i => i.type === 'logo' && i.erase).map(processLogo)).then(() => render());
   syncSlab(); render(); snap = JSON.stringify(S);
 }
