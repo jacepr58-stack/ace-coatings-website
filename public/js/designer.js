@@ -125,6 +125,7 @@ function paintColors() { // distinct paint colors on the slab (lines don't count
   for (const i of S.items) {
     if ((i.type === 'pickleball' || i.type === 'tennis') && i.fill) { c.add(i.color.toLowerCase()); if (i.type === 'pickleball') c.add(kitchenColor(i).toLowerCase()); }
     if (i.type === 'basket' && i.key && i.pkg !== 'basic') c.add(i.key.toLowerCase());
+    if (i.type === 'basket' && i.three) c.add(i.three.toLowerCase());
   }
   return c.size;
 }
@@ -151,8 +152,10 @@ function xf(it) {
 function fillSVG(it) {
   if (it.type === 'pickleball' && it.fill) return `<g transform="${xf(it)}"><rect x="-22" y="-10" width="44" height="20" fill="${it.color}"/><rect x="-7" y="-10" width="14" height="20" fill="${kitchenColor(it)}"/></g>`;
   if (it.type === 'tennis' && it.fill) return `<g transform="${xf(it)}"><rect x="-39" y="-18" width="78" height="36" fill="${it.color}"/></g>`;
-  if (it.type === 'basket' && it.key && it.pkg !== 'basic') {
-    const k = `<path d="M0 -6H19A6 6 0 0 1 19 6H0Z" fill="${it.key}"/>`; // lane + top half of the free throw circle, like our real courts
+  if (it.type === 'basket' && (it.three || (it.key && it.pkg !== 'basic'))) {
+    const R = ARC[it.arc][0];
+    let k = it.three ? `<path d="M0 ${-R}H5.25A${R} ${R} 0 0 1 5.25 ${R}H0Z" fill="${it.three}"/>` : ''; // inside the 3-point line
+    if (it.key && it.pkg !== 'basic') k += `<path d="M0 -6H19A6 6 0 0 1 19 6H0Z" fill="${it.key}"/>`; // lane + top half of the free throw circle, like our real courts
     return `<g transform="${xf(it)}">${k}${it.ext === 'full' ? `<g transform="translate(${it.len} 0) scale(-1 1)">${k}</g>` : ''}</g>`;
   }
   return '';
@@ -367,7 +370,8 @@ function panel() {
     h += row('Court', seg('ext', it.ext, [['half', 'Half court'], ['full', 'Full court']]));
     if (it.ext === 'full') h += row('Baseline to baseline', `<label class="cd-num"><input type="number" min="40" max="94" step="1" data-key="len" value="${it.len}"> ft</label>`);
     h += row('Line color', seg('line', it.line, BB_LINES) + `<small class="cd-note">Ghost lines are the court color a few shades lighter.</small>`);
-    if (it.pkg !== 'basic') h += row('Paint the key', swatches('key', it.key, COLORS, true));
+    h += row('Inside the 3-point line', swatches('three', it.three || '', COLORS, true));
+    if (it.pkg !== 'basic') h += row('Inside the key', swatches('key', it.key, COLORS, true));
     h += `<div class="cd-btns"><button type="button" class="cd-mini" data-act="rot">Turn 90°</button><button type="button" class="cd-mini" data-act="hoopHere">Add a hoop here</button></div>`;
   } else if (['foursquare', 'hopscotch', 'shuffle'].includes(it.type)) {
     h += row('Line color', swatches('line', it.line, LINE_COLORS));
@@ -495,7 +499,13 @@ function syncColors() {
       const k = pb.kitchen, std = ['border', 'court'].includes(k);
       h += row('Kitchen', `<div class="cd-seg" data-key="kitchen"><button type="button" data-v="border" aria-pressed="${k === 'border'}">Same as border</button><button type="button" data-v="court" aria-pressed="${k === 'court'}">Same as play area</button></div><details class="cd-more"${std ? '' : ' open'}><summary>Pick a 3rd color (adds cost)</summary>${swatches('kitchen', std ? '' : k)}</details>`);
     }
-  } else h += `<p class="cd-hint">Add pickleball or tennis lines to pick the play area and kitchen colors.</p>`;
+  }
+  const bk = S.items.find(i => i.type === 'basket');
+  if (bk) {
+    h += row('Inside the 3-point line', swatches('three', bk.three || '', COLORS, true));
+    if (bk.pkg !== 'basic') h += row('Inside the key', swatches('key', bk.key || '', COLORS, true));
+  }
+  if (!courts.length && !bk) h += `<p class="cd-hint">Add pickleball, tennis or basketball lines to pick the court colors.</p>`;
   $('#cd-colorsbox').innerHTML = h;
 }
 function setColor(key, v) {
@@ -503,6 +513,7 @@ function setColor(key, v) {
   for (const i of S.items) {
     if (key === 'play' && (i.type === 'pickleball' || i.type === 'tennis') && i.fill) i.color = v;
     if (key === 'kitchen' && i.type === 'pickleball') i.kitchen = v;
+    if ((key === 'three' || key === 'key') && i.type === 'basket') i[key] = v;
   }
 }
 $('#cd-colorsbox').addEventListener('click', e => {
@@ -703,7 +714,7 @@ function summary() {
   for (const i of it) {
     n[i.type] = (n[i.type] || 0) + 1; const k = `${NAMES[i.type]} ${n[i.type]}`;
     if (i.type === 'pickleball' || i.type === 'tennis') out.push(`${k}: ${i.fill ? `court ${colorName(i.color)}${i.type === 'pickleball' ? `, kitchen ${i.kitchen === 'border' ? 'same as border' : i.kitchen === 'court' ? 'same as court' : colorName(i.kitchen)}` : ''}` : 'lines only'}, lines ${colorName(i.line)}${i.net ? ', net' : ''}`);
-    if (i.type === 'basket') out.push(`${k}: ${i.ext === 'full' ? `full court (${i.len} ft)` : 'half court'}, ${i.pkg} package, high school lines, lines ${colorName(i.line)}${i.key && i.pkg !== 'basic' ? `, key painted ${colorName(i.key)}` : ''}`);
+    if (i.type === 'basket') out.push(`${k}: ${i.ext === 'full' ? `full court (${i.len} ft)` : 'half court'}, ${i.pkg} package, high school lines, lines ${colorName(i.line)}${i.key && i.pkg !== 'basic' ? `, key painted ${colorName(i.key)}` : ''}${i.three ? `, inside 3-point line painted ${colorName(i.three)}` : ''}`);
     if (['foursquare', 'hopscotch', 'shuffle'].includes(i.type)) out.push(`${k}: lines ${colorName(i.line)}`);
     if (i.type === 'hoop') out.push(`${k}: ${i.bb}" backboard`);
     if (i.type === 'light') out.push(`${k}: 16 ft pole, ${i.heads} x ${LIGHT[i.power].label}`);
