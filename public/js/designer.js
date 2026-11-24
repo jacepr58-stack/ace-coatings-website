@@ -17,7 +17,7 @@ const colorName = c => {
   const f = [...LINE_COLORS, ...COLORS].find(x => x[1].toLowerCase() === String(c).toLowerCase());
   return f ? f[0] : 'Custom ' + c;
 };
-const FENCE_COLORS = { black: ['Black vinyl', '#1b1f24'], galv: ['Galvanized', '#9aa3ab'], green: ['Green vinyl', '#2f5d3a'] };
+const FENCE_COLORS = { black: ['Black vinyl', '#1b1f24'], galv: ['Galvanized steel', '#9aa3ab'] };
 
 /* ---------- geometry constants ---------- */
 const ARC = { backyard: [17, 'Backyard (17 ft arc)'], hs: [19.75, 'High school (19 ft 9 in arc)'], college: [22.146, 'College (22 ft 1.75 in arc)'] };
@@ -41,9 +41,9 @@ function blank(L = 60, W = 30) { return { v: 1, slab: { l: L, w: W, color: '#1F5
 const PRESETS = {
   pickle: ['Pickleball', 64, 34, s => { add('pickleball', { x: 32, y: 17 }, s) }],
   pickle2: ['Two pickleball', 60, 60, s => { add('pickleball', { x: 30, y: 15 }, s); add('pickleball', { x: 30, y: 45 }, s) }],
-  half: ['Half court basketball', 40, 40, s => { addBasket({ x: 0, y: 20, rot: 0, pkg: 'middle', arc: 'hs' }, s) }],
-  combo: ['Pickleball + hoop', 60, 30, s => { add('pickleball', { x: 30, y: 15 }, s); addBasket({ x: 0, y: 15, rot: 0, pkg: 'basic', arc: 'backyard', line: 'ghost' }, s) }],
-  full: ['Full court basketball', 94, 50, s => { addBasket({ x: 0, y: 25, rot: 0, pkg: 'top', arc: 'hs', ext: 'full', len: 94, key: '#1C2E5A' }, s) }],
+  half: ['Half court basketball', 40, 40, s => { addBasket({ x: 0, y: 20, rot: 0, pkg: 'middle', arc: 'hs' }, s, true) }],
+  combo: ['Pickleball + hoop', 60, 30, s => { add('pickleball', { x: 30, y: 15 }, s); addBasket({ x: 0, y: 15, rot: 0, pkg: 'basic', arc: 'backyard', line: 'ghost' }, s, true) }],
+  full: ['Full court basketball', 94, 50, s => { addBasket({ x: 0, y: 25, rot: 0, pkg: 'top', arc: 'hs', ext: 'full', len: 94, key: '#1C2E5A' }, s, true) }],
   tennis: ['Tennis', 120, 60, s => { add('tennis', { x: 60, y: 30 }, s) }],
 };
 
@@ -62,10 +62,11 @@ function add(type, o = {}, s = S) {
   s.items.push(it);
   return it;
 }
-function addBasket(o, s = S) {
+function addBasket(o, s = S, withHoops = false) { // hoops are their own item; only the starter layouts include them
   const b = add('basket', o, s);
   const [ux, uy] = dir(b.rot);
   const hoopNear = (x, y) => s.items.some(h => h.type === 'hoop' && Math.hypot(h.x - x, h.y - y) < 6);
+  if (!withHoops) return b;
   if (!hoopNear(b.x, b.y)) add('hoop', { x: b.x, y: b.y }, s);
   if (b.ext === 'full' && !hoopNear(b.x + ux * b.len, b.y + uy * b.len)) add('hoop', { x: b.x + ux * b.len, y: b.y + uy * b.len }, s);
   return b;
@@ -94,7 +95,7 @@ function pools() { // every light head's pool, in world coords
     const P = LIGHT[li.power], a0 = lightAim(li);
     for (const s of SPREAD[li.heads]) {
       const a = (a0 + s) * Math.PI / 180;
-      out.push({ cx: li.x + Math.cos(a) * P.off, cy: li.y + Math.sin(a) * P.off, rx: P.depth, ry: P.width, deg: a0 + s });
+      out.push({ li: li.id, cx: li.x + Math.cos(a) * P.off, cy: li.y + Math.sin(a) * P.off, rx: P.depth, ry: P.width, deg: a0 + s });
     }
   }
   return out;
@@ -129,7 +130,7 @@ function bbox(it) { // local bbox [x,y,w,h]
     case 'tennis': return [-39.5, -21.5, 79, 43];
     case 'basket': { const R = ARC[it.arc][0]; const len = it.ext === 'full' ? it.len : Math.max(25.5, 5.25 + R + .5); return [-.5, -R - .5, len + 1, 2 * R + 1]; }
     case 'hoop': { const bw = BB[it.bb]; return [-1.2, -bw / 2 - .6, 6.8, bw + 1.2]; }
-    case 'light': return [-1.6, -1.6, 3.2, 3.2];
+    case 'light': return [-2.6, -2.6, 5.2, 5.2];
     case 'logo': { const h = it.w / (it.ar || 1); return [-it.w / 2, -h / 2, it.w, h]; }
   }
 }
@@ -176,11 +177,6 @@ function linesSVG(it) {
       s += `<g transform="translate(${it.len} 0) scale(-1 1)">${basketEnd(it)}</g>`;
       const h = it.len / 2;
       s += `<path d="M${h} -40V40"/><circle cx="${h}" cy="0" r="6"/>`;
-    } else if (it.pkg === 'top') { // half court line at 47 ft, or the far edge of a shorter slab
-      const [ux, uy] = dir(it.rot);
-      const span = ux ? (ux > 0 ? S.slab.l - it.x : it.x) : (uy > 0 ? S.slab.w - it.y : it.y);
-      const h = Math.min(47, span - .5);
-      if (h > 25) s += `<path d="M${h} -40V40"/>`;
     }
     return g(s);
   }
@@ -226,7 +222,9 @@ function hoopSVG(h) {
 }
 function lightSVG(li) {
   const a = SPREAD[li.heads];
-  return `<g transform="${xf(li)}">
+  const ring = sel === li.id && !S.night ? pools().filter(p => p.li === li.id).map(p => `<ellipse cx="${p.cx}" cy="${p.cy}" rx="${p.rx}" ry="${p.ry}" transform="rotate(${p.deg} ${p.cx} ${p.cy})" fill="rgba(255,226,120,.12)" stroke="#FFD866" stroke-width=".25" stroke-dasharray="1 .6"/>`).join('') : '';
+  const fs = 11 / PPF, lab = `${['', 'Single', 'Double', 'Triple'][li.heads]} light`;
+  return `${ring}<text x="${li.x}" y="${li.y + (hoopFacing(li) === 270 ? 3.2 : -2.6)}" font-size="${fs}" text-anchor="middle" fill="#fff" stroke="rgba(0,0,0,.55)" stroke-width="${fs * .2}" paint-order="stroke" font-family="system-ui,sans-serif" font-weight="700">${lab}</text><g transform="${xf(li)} scale(1.7)">
     <circle cx=".7" cy=".7" r=".55" fill="rgba(0,0,0,.25)"/>
     ${a.map(s => `<g transform="rotate(${s})"><path d="M0 0H1" stroke="#20252b" stroke-width=".22"/><rect x=".9" y="-.55" width=".55" height="1.1" rx=".12" fill="${S.night ? '#fff6cf' : '#2a3038'}" stroke="#20252b" stroke-width=".08"/></g>`).join('')}
     <rect x="-.38" y="-.38" width=".76" height=".76" fill="${li.power === 'solar' ? '#3b4250' : '#20252b'}"/>
@@ -308,7 +306,8 @@ function render(keepPanel) {
   $('#cd-colors').classList.toggle('warn', nc > 2);
   const cur = S.items.find(i => i.id === sel), tb = $('#cd-ontool');
   tb.hidden = !cur;
-  if (cur) { const edge = ['hoop', 'light', 'basket'].includes(cur.type); tb.querySelector('[data-c=xy]').textContent = edge ? 'Center on its edge' : 'Center'; tb.querySelectorAll('[data-c=x],[data-c=y]').forEach(b => b.hidden = edge); tb.querySelector('.cd-ontool-name').textContent = NAMES[cur.type]; }
+  if (cur) { const edge = ['hoop', 'light', 'basket'].includes(cur.type); tb.querySelector('[data-c=xy]').textContent = edge ? 'Center on its edge' : 'Center'; tb.querySelectorAll('[data-c=x],[data-c=y]').forEach(b => b.hidden = edge); tb.querySelector('.cd-ontool-name').textContent = NAMES[cur.type];
+    $('#cd-onopts').innerHTML = cur.type === 'light' ? seg('heads', cur.heads, cur.power === 'solar' ? [[1, 'Single'], [2, 'Double']] : [[1, 'Single'], [2, 'Double'], [3, 'Triple']]) : cur.type === 'fence' ? seg('h', cur.h, [[4, '4 ft'], [6, '6 ft'], [8, '8 ft']]) : ''; }
   if (!keepPanel) panel(); list(); save();
   if (window.CD3 && window.CD3.active) window.CD3.update();
 }
@@ -388,7 +387,6 @@ function setProp(it, key, v) {
     it.len = clamp(Math.round(span), 40, 94);
     it[key] = v;
     const fx = it.x + ux * it.len, fy = it.y + uy * it.len;
-    if (!S.items.some(h => h.type === 'hoop' && Math.hypot(h.x - fx, h.y - fy) < 4)) add('hoop', { x: fx, y: fy });
     return;
   }
   if (key === 'erase') { it.erase = v; processLogo(it).then(() => { render(); commit(); }); return; }
@@ -444,7 +442,8 @@ function centerItem(it, how) {
 }
 $('#cd-ontool').addEventListener('click', e => {
   const b = e.target.closest('button'), it = S.items.find(i => i.id === sel); if (!b || !it) return;
-  if (b.dataset.c) centerItem(it, b.dataset.c); else if (b.dataset.act) act(it, b.dataset.act);
+  const g = b.closest('[data-key]');
+  if (b.dataset.c) centerItem(it, b.dataset.c); else if (b.dataset.act) act(it, b.dataset.act); else if (g && b.dataset.v !== undefined) setProp(it, g.dataset.key, b.dataset.v); else return;
   render(); commit();
 });
 
@@ -476,17 +475,6 @@ function confirmSoft(b) { // two-tap confirm instead of a browser dialog
 
 /* add buttons + the options new items start with */
 const ADD = { heads: 1, power: 'wired', h: 6 };
-function syncAddOpts() {
-  $('#cd-addopts').innerHTML = row('New light poles', seg('heads', ADD.heads, ADD.power === 'solar' ? [[1, 'Single'], [2, 'Double']] : [[1, 'Single'], [2, 'Double'], [3, 'Triple']]) + seg('power', ADD.power, [['wired', '150W wired'], ['solar', '100W solar']]) + `<small class="cd-note">Each ${LIGHT[ADD.power].label} lights about ${LIGHT[ADD.power].sqft.toLocaleString()} sq ft, so a ${['', 'single', 'double', 'triple'][ADD.heads]} pole covers about ${(LIGHT[ADD.power].sqft * ADD.heads).toLocaleString()} sq ft.</small>`)
-    + row('New fence height', seg('h', ADD.h, [[4, '4 ft'], [6, '6 ft'], [8, '8 ft']]));
-}
-$('#cd-addopts').addEventListener('click', e => {
-  const b = e.target.closest('button[data-v]'), g = b && b.closest('[data-key]'); if (!g) return;
-  const k = g.dataset.key; ADD[k] = k === 'power' ? b.dataset.v : +b.dataset.v;
-  if (ADD.power === 'solar' && ADD.heads > 2) ADD.heads = 2;
-  syncAddOpts();
-});
-syncAddOpts();
 $('#cd-add').addEventListener('click', e => {
   const b = e.target.closest('[data-add]'); if (!b) return;
   const { l, w } = S.slab; let it;
@@ -722,6 +710,7 @@ function boot() {
     for (const i of S.items) { const n = +String(i.id).slice(1); if (n >= uid) uid = n + 1; }
   } else { S = blank(); PRESETS.combo[3](S); }
   S.night = false;
+  for (const i of S.items) if (i.type === 'fence' && !FENCE_COLORS[i.color]) i.color = 'black';
   Promise.all(S.items.filter(i => i.type === 'logo' && i.erase).map(processLogo)).then(() => render());
   syncSlab(); render(); snap = JSON.stringify(S);
 }

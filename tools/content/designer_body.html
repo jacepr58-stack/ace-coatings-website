@@ -4,7 +4,7 @@
   <div class="cd-stagewrap">
     <div class="cd-stage" id="cd-stage">
       <svg id="cd-svg" role="img" aria-label="Your court design. Drag items to move them."></svg>
-      <div class="cd-ontool" id="cd-ontool" hidden><span class="cd-ontool-name"></span><button type="button" data-c="xy">Center</button><button type="button" data-c="x" title="Center left to right">Center ↔</button><button type="button" data-c="y" title="Center top to bottom">Center ↕</button><button type="button" data-act="del" class="del">Delete</button></div>
+      <div class="cd-ontool" id="cd-ontool" hidden><span class="cd-ontool-name"></span><span id="cd-onopts" class="cd-onopts"></span><button type="button" data-c="xy">Center</button><button type="button" data-c="x" title="Center left to right">Center ↔</button><button type="button" data-c="y" title="Center top to bottom">Center ↕</button><button type="button" data-act="del" class="del">Delete</button></div>
       <div class="cd-3dbox" id="cd-3dbox" aria-label="3D view of your court. Drag to look around."></div>
       <div class="cd-views" id="cd-views" hidden><button type="button" class="cd-tool" data-view="orbit">Corner</button><button type="button" class="cd-tool" data-view="side">Side</button><button type="button" class="cd-tool" data-view="court">On the court</button><button type="button" class="cd-tool" data-view="top">Overhead</button></div>
       <div class="cd-bar">
@@ -59,7 +59,6 @@
         <button type="button" data-add="fenceall">+ Fence all around</button>
         <button type="button" data-add="logo">+ Upload logo</button>
       </div>
-      <div class="cd-addopts" id="cd-addopts"></div>
       <input type="file" id="cd-logofile" accept="image/*" hidden>
     </details>
     <div class="cd-card cd-inspcard"><div id="cd-insp"></div></div>

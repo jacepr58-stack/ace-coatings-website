@@ -106,3 +106,14 @@ input[type=range]{width:100%;accent-color:var(--blue)}
 .cd-colors.warn{background:#fff4e0;color:#8a5200}
 .cd-more{margin-top:8px;font-size:.85rem}
 .cd-more summary{cursor:pointer;color:var(--muted);font-weight:700;margin-bottom:6px}
+.cd-onopts .cd-seg{gap:4px}
+.cd-onopts .cd-seg button{border:0;padding:9px 12px;box-shadow:0 4px 14px -6px rgba(0,0,0,.5)}
+.cd-onopts .cd-seg button[aria-pressed="true"]{background:#FFD866;color:#1a1300}
+@media (max-width:900px){
+  .cd-stage{display:flex;flex-direction:column}
+  .cd-stage .cd-ontool,.cd-stage .cd-bar{position:static;padding:8px;background:#12243F}
+  .cd-stage .cd-ontool{order:-1}
+  .cd-ontool button,.cd-tool,.cd-ontool-name,.cd-onopts .cd-seg button{padding:8px 10px;font-size:.8rem}
+  .cd-ontool button.del{margin-left:0}
+  .cd-lit{color:#fff}
+}
