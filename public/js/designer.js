@@ -37,7 +37,7 @@ let S, sel = null, uid = 1, PPF = 10;
 const hist = [], fut = [];
 const logoCache = {}; // id -> {src, out}
 
-function blank(L = 60, W = 30) { return { v: 1, slab: { l: L, w: W, color: '#8A9097' }, items: [], night: false }; }
+function blank(L = 60, W = 30) { return { v: 1, slab: { l: L, w: W, color: '#1F5A3E' }, items: [], night: false }; }
 const PRESETS = {
   pickle: ['Pickleball', 64, 34, s => { add('pickleball', { x: 32, y: 17 }, s) }],
   pickle2: ['Two pickleball', 60, 60, s => { add('pickleball', { x: 30, y: 15 }, s); add('pickleball', { x: 30, y: 45 }, s) }],
@@ -50,7 +50,7 @@ const PRESETS = {
 function nid() { return 'i' + (uid++); }
 function add(type, o = {}, s = S) {
   const base = {
-    pickleball: { fill: true, color: '#387FE5', kitchen: '#79B6EA', line: '#FFFFFF', net: true, rot: 0 },
+    pickleball: { fill: true, color: '#387FE5', kitchen: 'border', line: '#FFFFFF', net: true, rot: 0 },
     tennis: { fill: true, color: '#1F5A3E', line: '#FFFFFF', net: true, rot: 0 },
     basket: { pkg: 'middle', arc: 'hs', ext: 'half', len: 84, line: '#FFFFFF', key: '', rot: 0 },
     hoop: { bb: 60 },
@@ -65,8 +65,9 @@ function add(type, o = {}, s = S) {
 function addBasket(o, s = S) {
   const b = add('basket', o, s);
   const [ux, uy] = dir(b.rot);
-  add('hoop', { x: b.x, y: b.y }, s);
-  if (b.ext === 'full') add('hoop', { x: b.x + ux * b.len, y: b.y + uy * b.len }, s);
+  const hoopNear = (x, y) => s.items.some(h => h.type === 'hoop' && Math.hypot(h.x - x, h.y - y) < 6);
+  if (!hoopNear(b.x, b.y)) add('hoop', { x: b.x, y: b.y }, s);
+  if (b.ext === 'full' && !hoopNear(b.x + ux * b.len, b.y + uy * b.len)) add('hoop', { x: b.x + ux * b.len, y: b.y + uy * b.len }, s);
   return b;
 }
 const dir = r => [Math.round(Math.cos(r * Math.PI / 180)), Math.round(Math.sin(r * Math.PI / 180))];
@@ -113,6 +114,15 @@ function litPercent() {
 }
 
 /* ---------- drawing ---------- */
+function kitchenColor(it) { return it.kitchen === 'border' ? S.slab.color : it.kitchen === 'court' ? it.color : it.kitchen; }
+function paintColors() { // distinct paint colors on the slab (lines don't count)
+  const c = new Set([S.slab.color.toLowerCase()]);
+  for (const i of S.items) {
+    if ((i.type === 'pickleball' || i.type === 'tennis') && i.fill) { c.add(i.color.toLowerCase()); if (i.type === 'pickleball') c.add(kitchenColor(i).toLowerCase()); }
+    if (i.type === 'basket' && i.key && i.pkg !== 'basic') c.add(i.key.toLowerCase());
+  }
+  return c.size;
+}
 function bbox(it) { // local bbox [x,y,w,h]
   switch (it.type) {
     case 'pickleball': return [-22.5, -11.5, 45, 23];
@@ -131,7 +141,7 @@ function xf(it) {
 }
 
 function fillSVG(it) {
-  if (it.type === 'pickleball' && it.fill) return `<g transform="${xf(it)}"><rect x="-22" y="-10" width="44" height="20" fill="${it.color}"/><rect x="-7" y="-10" width="14" height="20" fill="${it.kitchen}"/></g>`;
+  if (it.type === 'pickleball' && it.fill) return `<g transform="${xf(it)}"><rect x="-22" y="-10" width="44" height="20" fill="${it.color}"/><rect x="-7" y="-10" width="14" height="20" fill="${kitchenColor(it)}"/></g>`;
   if (it.type === 'tennis' && it.fill) return `<g transform="${xf(it)}"><rect x="-39" y="-18" width="78" height="36" fill="${it.color}"/></g>`;
   if (it.type === 'basket' && it.key && it.pkg !== 'basic') {
     const k = `<path d="M0 -6H19A6 6 0 0 1 19 6H0Z" fill="${it.key}"/>`; // lane + top half of the free throw circle, like our real courts
@@ -170,7 +180,7 @@ function linesSVG(it) {
       const [ux, uy] = dir(it.rot);
       const span = ux ? (ux > 0 ? S.slab.l - it.x : it.x) : (uy > 0 ? S.slab.w - it.y : it.y);
       const h = Math.min(47, span - .5);
-      if (h > 25) s += `<path d="M${h} -40V40M${h} -6A6 6 0 0 0 ${h} 6"/>`;
+      if (h > 25) s += `<path d="M${h} -40V40"/>`;
     }
     return g(s);
   }
@@ -293,6 +303,12 @@ function render(keepPanel) {
   $('#cd-lit').textContent = S.night ? (by('light').length ? `About ${litPercent()}% of the slab is well lit` : 'Add a light pole to see coverage') : '';
   $('#cd-night').setAttribute('aria-pressed', S.night); $('#cd-night span').textContent = S.night ? 'Turn lights off' : 'Turn lights on';
   $('#cd-stage').classList.toggle('night', S.night);
+  const nc = paintColors();
+  $('#cd-colors').innerHTML = nc > 2 ? `<b>${nc} colors.</b> Our standard court is 2 colors; each extra color adds cost.` : `<b>${nc}-color court</b> (our standard).`;
+  $('#cd-colors').classList.toggle('warn', nc > 2);
+  const cur = S.items.find(i => i.id === sel), tb = $('#cd-ontool');
+  tb.hidden = !cur;
+  if (cur) { const edge = ['hoop', 'light', 'basket'].includes(cur.type); tb.querySelector('[data-c=xy]').textContent = edge ? 'Center on its edge' : 'Center'; tb.querySelectorAll('[data-c=x],[data-c=y]').forEach(b => b.hidden = edge); tb.querySelector('.cd-ontool-name').textContent = NAMES[cur.type]; }
   if (!keepPanel) panel(); list(); save();
   if (window.CD3 && window.CD3.active) window.CD3.update();
 }
@@ -312,7 +328,7 @@ function panel() {
   let h = `<div class="cd-insp-head"><b>${NAMES[it.type]}</b><span><button type="button" class="cd-mini" data-act="dup" title="Duplicate">Duplicate</button><button type="button" class="cd-mini warn" data-act="del" title="Delete">Delete</button></span></div>`;
   if (it.type === 'pickleball') {
     h += row('Paint', seg('fill', it.fill, [[true, 'Paint court colors'], [false, 'Lines only']]));
-    if (it.fill) h += row('Court color', swatches('color', it.color)) + row('Kitchen color', swatches('kitchen', it.kitchen));
+    if (it.fill) h += row('Court color', swatches('color', it.color)) + row('Kitchen color', `<div class="cd-seg" data-key="kitchen"><button type="button" data-v="border" aria-pressed="${it.kitchen === 'border'}">Same as border</button><button type="button" data-v="court" aria-pressed="${it.kitchen === 'court'}">Same as court</button></div><details class="cd-more"${['border', 'court'].includes(it.kitchen) ? '' : ' open'}><summary>Pick a 3rd color (adds cost)</summary>${swatches('kitchen', ['border', 'court'].includes(it.kitchen) ? '' : it.kitchen)}</details>`);
     h += row('Line color', swatches('line', it.line, LINE_COLORS)) + row('Net', seg('net', it.net, [[true, 'Show net'], [false, 'No net']]));
     h += `<div class="cd-btns"><button type="button" class="cd-mini" data-act="rot">Rotate 90°</button></div>`;
   } else if (it.type === 'tennis') {
@@ -414,6 +430,24 @@ function renderLight() { // re-render but keep the panel (so a slider stays grab
 }
 $('#cd-list').addEventListener('click', e => { const b = e.target.closest('[data-sel]'); if (b) { sel = b.dataset.sel; render(); } });
 
+function centerItem(it, how) {
+  const { l, w } = S.slab;
+  if (it.type === 'fence') { const mx = (it.x + it.x2) / 2, my = (it.y + it.y2) / 2, dx = how !== 'y' ? l / 2 - mx : 0, dy = how !== 'x' ? w / 2 - my : 0; it.x += dx; it.x2 += dx; it.y += dy; it.y2 += dy; return; }
+  if (it.type === 'basket') {
+    const r = ((it.rot || 0) % 360 + 360) % 360;
+    if (r === 0 || r === 180) { it.y = w / 2; if (it.ext === 'full') it.x = r === 0 ? (l - it.len) / 2 : (l + it.len) / 2; }
+    else { it.x = l / 2; if (it.ext === 'full') it.y = r === 90 ? (w - it.len) / 2 : (w + it.len) / 2; }
+    return;
+  }
+  if (it.type === 'hoop' || it.type === 'light') { const f = hoopFacing(it); if (f === 0 || f === 180) it.y = w / 2; else it.x = l / 2; return; }
+  if (how !== 'y') it.x = l / 2; if (how !== 'x') it.y = w / 2;
+}
+$('#cd-ontool').addEventListener('click', e => {
+  const b = e.target.closest('button'), it = S.items.find(i => i.id === sel); if (!b || !it) return;
+  if (b.dataset.c) centerItem(it, b.dataset.c); else if (b.dataset.act) act(it, b.dataset.act);
+  render(); commit();
+});
+
 /* slab */
 function syncSlab() {
   $('#cd-L').value = S.slab.l; $('#cd-W').value = S.slab.w;
@@ -461,7 +495,11 @@ $('#cd-add').addEventListener('click', e => {
     case 'tennis': it = add('tennis', { x: l / 2, y: w / 2, rot: l >= w ? 0 : 90 }); break;
     case 'basket': it = addBasket(l >= w ? { x: 0, y: w / 2, rot: 0 } : { x: w / 2, y: 0, rot: 90 }); break;
     case 'hoop': it = add('hoop', { x: 0, y: w / 2 }); break;
-    case 'light': it = add('light', { x: l / 2, y: -2, heads: ADD.heads, power: ADD.power }); break;
+    case 'light': {
+      const spots = [[l / 2, -2], [l / 4, -2], [3 * l / 4, -2], [l / 2, w + 2], [l / 4, w + 2], [3 * l / 4, w + 2], [-2, w / 2], [l + 2, w / 2]];
+      const free = spots.find(([x, y]) => !S.items.some(i => i.type === 'light' && Math.hypot(i.x - x, i.y - y) < 6)) || [l / 2, -2];
+      it = add('light', { x: free[0], y: free[1], heads: ADD.heads, power: ADD.power }); break;
+    }
     case 'fence': it = add('fence', { x: 0, y: w + 0, x2: Math.min(30, l), y2: w, h: ADD.h }); break;
     case 'fenceall': {
       const pts = [[0, 0], [l, 0], [l, w], [0, w]];
@@ -606,11 +644,11 @@ function toast(m) { const t = $('#cd-toast'); t.textContent = m; t.hidden = fals
 
 /* ---------- summary + image ---------- */
 function summary() {
-  const { l, w, color } = S.slab, it = S.items, out = [`Slab: ${l} x ${w} ft, base color ${colorName(color)}`];
+  const { l, w, color } = S.slab, it = S.items, nc = paintColors(), out = [`Slab: ${l} x ${w} ft, border color ${colorName(color)}`, `Paint colors: ${nc}${nc > 2 ? ' (more than our standard 2-color court)' : ' (standard)'}`];
   const n = {};
   for (const i of it) {
     n[i.type] = (n[i.type] || 0) + 1; const k = `${NAMES[i.type]} ${n[i.type]}`;
-    if (i.type === 'pickleball' || i.type === 'tennis') out.push(`${k}: ${i.fill ? `court ${colorName(i.color)}${i.type === 'pickleball' ? `, kitchen ${colorName(i.kitchen)}` : ''}` : 'lines only'}, lines ${colorName(i.line)}${i.net ? ', net' : ''}`);
+    if (i.type === 'pickleball' || i.type === 'tennis') out.push(`${k}: ${i.fill ? `court ${colorName(i.color)}${i.type === 'pickleball' ? `, kitchen ${i.kitchen === 'border' ? 'same as border' : i.kitchen === 'court' ? 'same as court' : colorName(i.kitchen)}` : ''}` : 'lines only'}, lines ${colorName(i.line)}${i.net ? ', net' : ''}`);
     if (i.type === 'basket') out.push(`${k}: ${i.ext === 'full' ? `full court (${i.len} ft)` : 'half court'}, ${i.pkg} package, ${ARC[i.arc][1]}, lines ${colorName(i.line)}${i.key && i.pkg !== 'basic' ? `, key painted ${colorName(i.key)}` : ''}`);
     if (i.type === 'hoop') out.push(`${k}: ${i.bb}" backboard`);
     if (i.type === 'light') out.push(`${k}: 16 ft pole, ${i.heads} x ${LIGHT[i.power].label}`);

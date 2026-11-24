@@ -4,6 +4,7 @@
   <div class="cd-stagewrap">
     <div class="cd-stage" id="cd-stage">
       <svg id="cd-svg" role="img" aria-label="Your court design. Drag items to move them."></svg>
+      <div class="cd-ontool" id="cd-ontool" hidden><span class="cd-ontool-name"></span><button type="button" data-c="xy">Center</button><button type="button" data-c="x" title="Center left to right">Center ↔</button><button type="button" data-c="y" title="Center top to bottom">Center ↕</button><button type="button" data-act="del" class="del">Delete</button></div>
       <div class="cd-3dbox" id="cd-3dbox" aria-label="3D view of your court. Drag to look around."></div>
       <div class="cd-views" id="cd-views" hidden><button type="button" class="cd-tool" data-view="orbit">Corner</button><button type="button" class="cd-tool" data-view="side">Side</button><button type="button" class="cd-tool" data-view="court">On the court</button><button type="button" class="cd-tool" data-view="top">Overhead</button></div>
       <div class="cd-bar">
@@ -38,6 +39,7 @@
     </div>
   </div>
   <aside class="cd-panel">
+    <p class="cd-colors" id="cd-colors" aria-live="polite"></p>
     <details class="cd-card" open><summary>1. Your slab</summary>
       <form id="cd-slabform" class="cd-slab" onsubmit="return false">
         <label>Length<span class="cd-num"><input id="cd-L" type="number" min="10" max="200" step="1" inputmode="numeric"> ft</span></label>
