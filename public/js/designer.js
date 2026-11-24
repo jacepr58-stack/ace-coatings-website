@@ -201,14 +201,17 @@ function fenceSVG(f) {
   const posts = new Set([0, L]); for (let p = 10; p < L; p += 10) posts.add(p);
   for (const g of gates) { posts.add(g.t); posts.add(g.t + g.w); }
   s += [...posts].filter(p => !gates.some(g => p > g.t + .01 && p < g.t + g.w - .01)).map(p => `<circle cx="${p}" cy="0" r=".32" fill="${col}"/>`).join('');
+  // which side of this fence is the court? gates swing that way
+  const ux = (f.x2 - f.x) / (L || 1), uy = (f.y2 - f.y) / (L || 1);
+  const side = ((S.slab.l / 2 - f.x) * -uy + (S.slab.w / 2 - f.y) * ux) >= 0 ? 1 : -1;
   for (const g of gates) { // gate: lighter panel in the opening plus a swing arc
     s += `<path d="M${g.t + .2} 0H${g.t + g.w - .2}" stroke="${col}" stroke-width=".5" opacity=".55"/>`;
     const leaves = g.w > 6 ? [[g.t, g.w / 2, 1], [g.t + g.w, g.w / 2, -1]] : [[g.t, g.w, 1]];
-    s += leaves.map(([x0, lw, sg]) => `<path d="M${x0 + sg * lw} 0A${lw} ${lw} 0 0 ${sg > 0 ? 1 : 0} ${x0} ${lw}" fill="none" stroke="${col}" stroke-width=".1" stroke-dasharray=".35 .3"/>`).join('');
+    s += leaves.map(([x0, lw, sg]) => `<path d="M${x0 + sg * lw} 0A${lw} ${lw} 0 0 ${(sg > 0) === (side > 0) ? 1 : 0} ${x0} ${side * lw}" fill="none" stroke="${col}" stroke-width=".1" stroke-dasharray=".35 .3"/>`).join('');
   }
   const ang = Math.atan2(f.y2 - f.y, f.x2 - f.x) * 180 / Math.PI, flip = ang > 90.5 || ang < -89.5;
   const fs = 11 / PPF;
-  s += `<text transform="translate(${L / 2} ${-fs * .55}) rotate(${flip ? 180 : 0})" dy="${flip ? fs * .35 : 0}" font-size="${fs}" text-anchor="middle" fill="#fff" stroke="rgba(0,0,0,.55)" stroke-width="${fs * .2}" paint-order="stroke" font-family="system-ui,sans-serif" font-weight="700">${f.h}' fence</text>`;
+  s += `<text transform="translate(${L / 2} ${side > 0 ? -fs * .55 : fs * 1.2}) rotate(${flip ? 180 : 0})" dy="${flip ? fs * .35 : 0}" font-size="${fs}" text-anchor="middle" fill="#fff" stroke="rgba(0,0,0,.55)" stroke-width="${fs * .2}" paint-order="stroke" font-family="system-ui,sans-serif" font-weight="700">${f.h}' fence</text>`;
   return s + '</g>';
 }
 function hoopSVG(h) {
@@ -609,10 +612,22 @@ svg.addEventListener('pointermove', e => {
     for (const v of [0, w]) if (Math.abs(ny - v) < 1) ny = v;
     if (h === 'p1') { it.x = nx; it.y = ny; } else { it.x2 = nx; it.y2 = ny; }
     const L = fenceLen(it); it.gates = o.gates.filter(g => g.t + g.w <= L);
-  } else if (h === 'gate') {
-    const L = fenceLen(it), ux = (it.x2 - it.x) / L, uy = (it.y2 - it.y) / L, g = it.gates[drag.g];
-    const t0 = o.gates[drag.g].t + dx * ux + dy * uy;
-    g.t = clamp(r2(t0), 0, L - g.w);
+  } else if (h === 'gate') { // slide along any fence; hop to whichever fence is closest
+    const g = drag.gate || (drag.gate = it.gates[drag.g]);
+    let best = null;
+    for (const f of S.items.filter(i => i.type === 'fence')) {
+      const L = fenceLen(f); if (L < g.w) continue;
+      const ux = (f.x2 - f.x) / L, uy = (f.y2 - f.y) / L;
+      const t = clamp((x - f.x) * ux + (y - f.y) * uy, 0, L), d = Math.hypot(f.x + ux * t - x, f.y + uy * t - y);
+      if (!best || d < best.d) best = { f, t, L, d };
+    }
+    if (best) {
+      if (best.f !== drag.it) {
+        drag.it.gates = drag.it.gates.filter(q => q !== g); best.f.gates.push(g);
+        drag.it = best.f; sel = best.f.id;
+      }
+      g.t = clamp(r2(best.t - g.w / 2), 0, best.L - g.w);
+    }
   } else if (h === 'size') {
     const a = -(it.rot || 0) * Math.PI / 180;
     const lx = (x - it.x) * Math.cos(a) - (y - it.y) * Math.sin(a);
